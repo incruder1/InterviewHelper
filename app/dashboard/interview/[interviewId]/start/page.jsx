@@ -13,6 +13,9 @@ const StartInterview = ({ params }) => {
   const [interviewData, setInterviewData] = useState();
   const [mockInterviewQuestion, setMockInterviewQuestion] = useState();
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
+  const [answerRecorded, setAnswerRecorded] = useState(false);
+  const [recording, setRecording] = useState(false); // New state
+
   useEffect(() => {
     GetInterviewDetails();
   }, []);
@@ -24,7 +27,6 @@ const StartInterview = ({ params }) => {
       .where(eq(MockInterview.mockId, params.interviewId));
 
     const jsonMockResp = JSON.parse(result[0].jsonMockResp);
-    // console.log(jsonMockResp);
     setMockInterviewQuestion(jsonMockResp);
     setInterviewData(result[0]);
   };
@@ -32,44 +34,49 @@ const StartInterview = ({ params }) => {
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 my-10">
-        {/* Questin Section */}
         <QuestionSection
           mockInterviewQuestion={mockInterviewQuestion}
           activeQuestionIndex={activeQuestionIndex}
         />
-
-        {/* Video/audio Recording */}
         <RecordAnswerSection
           mockInterviewQuestion={mockInterviewQuestion}
           activeQuestionIndex={activeQuestionIndex}
           interviewData={interviewData}
+          setAnswerRecorded={setAnswerRecorded}
+          setRecording={setRecording} // Pass recording state handler
         />
       </div>
       <div className="flex gap-3 my-5 md:my-0 md:justify-end md:gap-6">
         {activeQuestionIndex > 0 && (
           <Button
             onClick={() => setActiveQuestionIndex(activeQuestionIndex - 1)}
+            disabled={recording} // Disable while recording
           >
             Previous Question
           </Button>
         )}
-        {activeQuestionIndex != mockInterviewQuestion?.length - 1 && (
+        {activeQuestionIndex !== mockInterviewQuestion?.length - 1 && (
           <Button
-            onClick={() => setActiveQuestionIndex(activeQuestionIndex + 1)}
+            onClick={() => {
+              setActiveQuestionIndex(activeQuestionIndex + 1);
+              setAnswerRecorded(false); // Reset the recording status
+            }}
+            disabled={ answerRecorded || recording}  
           >
             Next Question
           </Button>
         )}
-        {activeQuestionIndex == mockInterviewQuestion?.length - 1 && (
+        {activeQuestionIndex === mockInterviewQuestion?.length - 1 && (
           <Link
             href={"/dashboard/interview/" + interviewData?.mockId + "/feedback"}
           >
-            <Button>End Interview</Button>
+            <Button disabled={recording}>End Interview</Button>
           </Link>
         )}
       </div>
     </div>
   );
 };
+
 
 export default StartInterview;
