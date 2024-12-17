@@ -13,14 +13,14 @@ import { useUser } from "@clerk/nextjs";
 import moment from "moment";
 import { WebCamContext } from "@/app/dashboard/layout";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
+import { eq, and } from "drizzle-orm";
 const RecordAnswerSection = ({
   mockInterviewQuestion,
   activeQuestionIndex,
   interviewData,
-  setAnswerRecorded ,
+  setAnswerRecorded,
   setRecording,
-  
+
 }) => {
   const [userAnswer, setUserAnswer] = useState("");
   const { user } = useUser();
@@ -76,13 +76,13 @@ const RecordAnswerSection = ({
     try {
       setLoading(true);
       const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      
+
       // Convert audio blob to base64
       const reader = new FileReader();
       reader.readAsDataURL(audioBlob);
       reader.onloadend = async () => {
         const base64Audio = reader.result.split(',')[1];
-        
+
         const result = await model.generateContent([
           "Transcribe the following audio:",
           { inlineData: { data: base64Audio, mimeType: "audio/webm" } },
@@ -126,17 +126,59 @@ const RecordAnswerSection = ({
       } catch (e) {
         throw new Error("Invalid JSON response: " + MockJsonResp);
       }
+      console.log("mockId:", interviewData?.mockId);
+      console.log("question:", mockInterviewQuestion[activeQuestionIndex]?.Question);
 
-      const resp = await db.insert(UserAnswer).values({
-        mockIdRef: interviewData?.mockId,
-        question: mockInterviewQuestion[activeQuestionIndex]?.Question,
-        correctAns: mockInterviewQuestion[activeQuestionIndex]?.Answer,
-        userAns: userAnswer,
-        feedback: jsonFeedbackResp?.feedback,
-        rating: jsonFeedbackResp?.rating,
-        userEmail: user?.primaryEmailAddress?.emailAddress,
-        createdAt: moment().format("YYYY-MM-DD"),
-      });
+      const existingUserAnswer = await db
+    .select()
+    .from(UserAnswer)
+    .where(
+        and(
+            eq(UserAnswer.mockIdRef, interviewData?.mockId ?? null), // Use null as a fallback
+            eq(UserAnswer.question, mockInterviewQuestion[activeQuestionIndex]?.Question ?? '') // Use empty string as a fallback
+        )
+    )
+    .limit(1);
+      // Use the first row if it exists
+      // const userAnswer = existingUserAnswer[0] || null;
+
+      console.log("Existing user answer:", existingUserAnswer);
+      let resp;
+      if(existingUserAnswer){
+          resp = await db.update(UserAnswer).set({
+          userAns: userAnswer,
+          feedback: jsonFeedbackResp?.feedback,
+          rating: jsonFeedbackResp?.rating,
+        }).where(
+          and(
+              eq(UserAnswer.mockIdRef, interviewData?.mockId ?? null), // Use null as a fallback
+              eq(UserAnswer.question, mockInterviewQuestion[activeQuestionIndex]?.Question ?? '') // Use empty string as a fallback
+          )
+      );
+      }
+      else {
+          resp = await db.insert(UserAnswer).values({
+          mockIdRef: interviewData?.mockId,
+          question: mockInterviewQuestion[activeQuestionIndex]?.Question,
+          correctAns: mockInterviewQuestion[activeQuestionIndex]?.Answer,
+          userAns: userAnswer,
+          feedback: jsonFeedbackResp?.feedback,
+          rating: jsonFeedbackResp?.rating,
+          userEmail: user?.primaryEmailAddress?.emailAddress,
+          createdAt: moment().format("YYYY-MM-DD"),
+        });
+      }
+
+      // const resp = await db.insert(UserAnswer).values({
+      //   mockIdRef: interviewData?.mockId,
+      //   question: mockInterviewQuestion[activeQuestionIndex]?.Question,
+      //   correctAns: mockInterviewQuestion[activeQuestionIndex]?.Answer,
+      //   userAns: userAnswer,
+      //   feedback: jsonFeedbackResp?.feedback,
+      //   rating: jsonFeedbackResp?.rating,
+      //   userEmail: user?.primaryEmailAddress?.emailAddress,
+      //   createdAt: moment().format("YYYY-MM-DD"),
+      // });
 
       if (resp) {
         toast("User Answer recorded successfully");
@@ -149,7 +191,10 @@ const RecordAnswerSection = ({
       console.error(error);
       toast("An error occurred while recording the user answer");
       setLoading(false);
+      setAnswerRecorded(false);
+      setRecording(false);
     }
+    
   };
 
   return (
@@ -171,22 +216,22 @@ const RecordAnswerSection = ({
           </Button>
         </div>
         <div className="bg-primary rounded-lg">
-        <Button
-          // variant="outline"
-          onClick={isRecording ? stopRecording : startRecording}
-          disabled={loading}
-        >
-          {isRecording ? (
-            <h2 className="text-red-400 flex gap-2 ">
-              <Mic /> Stop Recording.
-            </h2>
-          ) : (
-            " Record Answer"
-          )}
-        </Button>
+          <Button
+            // variant="outline"
+            onClick={isRecording ? stopRecording : startRecording}
+            disabled={loading}
+          >
+            {isRecording ? (
+              <h2 className="text-red-400 flex gap-2 ">
+                <Mic /> Stop Recording.
+              </h2>
+            ) : (
+              " Record Answer"
+            )}
+          </Button>
         </div>
       </div>
-       </div>
+    </div>
   );
 };
 
