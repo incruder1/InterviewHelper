@@ -6,7 +6,7 @@ import { MockInterview } from "@/utils/schema";
 import { desc, eq } from "drizzle-orm";
 import InterviewItemCard from "./InterviewItemCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Spinner } from "../../../components/ui/Spinner"; // Assuming you have a spinner component for loading
+import { Spinner } from "@/components/ui/Spinner"; // Assuming you have a spinner component for loading
 
 
 const InterviewList = () => {
