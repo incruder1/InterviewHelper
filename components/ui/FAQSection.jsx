@@ -40,7 +40,7 @@ const FAQSection = () => {
     updatedFAQItems[index].open = !updatedFAQItems[index].open;
     setFaqItems(updatedFAQItems);
   };
-  console.log(faqItems);
+  // console.log(faqItems);
 
   return (
     <section id="faq" className="py-24 bg-neutral-900">
