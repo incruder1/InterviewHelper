@@ -2,7 +2,7 @@
 import { db } from "@/utils/db";
 import { UserAnswer } from "@/utils/schema";
 import { eq } from "drizzle-orm";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { ChevronDown } from "lucide-react";
 
 import {
@@ -12,25 +12,31 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useMemo } from "react";
+import { Spinner } from "@/components/ui/Spinner";
 
 const Feedback = ({ params }) => {
   const router = useRouter();
   const [feedbackList, setFeedbackList] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     GetFeedback();
   }, []);
 
   const GetFeedback = async () => {
-    const result = await db
-      .select()
-      .from(UserAnswer)
-      .where(eq(UserAnswer.mockIdRef, params.interviewId))
-      .orderBy(UserAnswer.id);
+    try {
+      const result = await db
+        .select()
+        .from(UserAnswer)
+        .where(eq(UserAnswer.mockIdRef, params.interviewId))
+        .orderBy(UserAnswer.id);
 
-    console.log(result);
-    setFeedbackList(result);
+      setFeedbackList(result);
+    } catch (error) {
+      console.error("Error fetching feedback:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const overallRating = useMemo(() => {
@@ -39,12 +45,18 @@ const Feedback = ({ params }) => {
         (sum, item) => sum + Number(item.rating),
         0
       );
-      // console.log("total",totalRating);
-      // console.log("length",feedbackList.length);
       return (totalRating / feedbackList.length).toFixed(1);
     }
     return 0;
   }, [feedbackList]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Spinner size="w-16 h-16" color="border-t-blue-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-10">
@@ -54,8 +66,8 @@ const Feedback = ({ params }) => {
         </h2>
       ) : (
         <>
-         <h2 className="text-3xl font-bold text-green-500">Congratulations</h2>
-         <h2 className="font-bold text-2xl">Here is your interview feedback</h2>
+          <h2 className="text-3xl font-bold text-green-500">Congratulations</h2>
+          <h2 className="font-bold text-2xl">Here is your interview feedback</h2>
           <h2 className="text-primary text-lg my-3">
             Your overall interview rating{" "}
             <strong
@@ -74,7 +86,7 @@ const Feedback = ({ params }) => {
           {feedbackList &&
             feedbackList.map((item, index) => (
               <Collapsible key={index} className="mt-7">
-                <CollapsibleTrigger className="p-2 bg-secondary rounded-lg my-2 text-left flex justify-between gap-7 w-full">
+                <CollapsibleTrigger className="p-2 bg-slate-300 dark:bg-gray-700 dark:text-white rounded-lg my-2 text-left flex justify-between gap-7 w-full">
                   {item.question} <ChevronDown className="h-5 w-5" />{" "}
                 </CollapsibleTrigger>
                 <CollapsibleContent>
@@ -101,8 +113,12 @@ const Feedback = ({ params }) => {
             ))}
         </>
       )}
-
-      <Button onClick={() => router.replace("/dashboard")} className="my-5 bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900">Go Home</Button>
+      <Button
+        onClick={() => router.replace("/dashboard")}
+        className="my-5 bg-slate-400 hover:bg-slate-600 dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900"
+      >
+        Go Home
+      </Button>
     </div>
   );
 };

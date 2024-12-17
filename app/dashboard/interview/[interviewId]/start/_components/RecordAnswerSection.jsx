@@ -143,7 +143,7 @@ const RecordAnswerSection = ({
       // Use the first row if it exists
       // const userAnswer = existingUserAnswer[0] || null;
 
-      console.log("Existing user answer:", existingUserAnswer);
+      // console.log("Existing user answer:", existingUserAnswer);
       let resp;
       if(existingUserAnswer.length>0){
           resp = await db.update(UserAnswer).set({
