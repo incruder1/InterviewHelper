@@ -30,7 +30,7 @@ const TestimonialsSection = () => {
                 <div className="flex text-primary-400">
                   {Array.from({ length: testimonial.rating }).map((_, starIndex) => (
                     // <i key={starIndex} className="fas fa-star"></i>
-                    <IoStar className='' color="#FFD700" size={20} />
+                    <IoStar key={starIndex} className='' color="#FFD700" size={20} />
                   ))}
                 </div>
               </div>
@@ -63,7 +63,7 @@ const TestimonialsSection = () => {
 const testimonials = [
   {
     avatar: "https://avatar.iran.liara.run/public/2",
-    name: "Sarah Johnson",
+    name: "John Doe",
     role: "Software Engineer at Google",
     rating: 5,
     feedback:

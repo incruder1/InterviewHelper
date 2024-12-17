@@ -35,7 +35,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold text-white mb-6">Product</h3>
             <ul className="space-y-4">
               <li><a href="#features" className="text-neutral-400 hover:text-white transition-colors">Features</a></li>
-              <li><a href="#pricing" className="text-neutral-400 hover:text-white transition-colors">Pricing</a></li>
+              {/* <li><a href="#pricing" className="text-neutral-400 hover:text-white transition-colors">Pricing</a></li> */}
               <li><a href="#testimonials" className="text-neutral-400 hover:text-white transition-colors">Testimonials</a></li>
               <li><a href="#faq" className="text-neutral-400 hover:text-white transition-colors">FAQ</a></li>
             </ul>
@@ -57,7 +57,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold text-white mb-6">Company</h3>
             <ul className="space-y-4">
               <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">About Us</a></li>
-              <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">Careers</a></li>
+              <li><a href="https://devjohriresume.vercel.app/" className="text-neutral-400 hover:text-white transition-colors">Careers</a></li>
               <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">Contact</a></li>
               <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">Partners</a></li>
             </ul>

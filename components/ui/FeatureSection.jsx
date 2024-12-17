@@ -13,7 +13,7 @@ import { MdDashboardCustomize } from "react-icons/md";
 const FeaturesSection = () => {
   return (
     <section id="features" className="py-24 bg-neutral-900">
-      <FaBeer />
+      
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-16">

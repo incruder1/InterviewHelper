@@ -21,6 +21,7 @@ import { v4 as uuidv4 } from "uuid";
 import { useUser } from "@clerk/nextjs";
 import moment from "moment";
 import { useRouter } from "next/navigation";
+import { toTitleCase } from "@/utils/utilities";
 
 const AddNewInterview = () => {
   const [openDailog, setOpenDialog] = useState(false);
@@ -67,7 +68,7 @@ const AddNewInterview = () => {
           createdAt: moment().format("YYYY-MM-DD"),
         })
         .returning({ mockId: MockInterview.mockId });
-        
+
       // console.log("Inserted ID:", resp);
 
       if (resp) {
@@ -79,17 +80,19 @@ const AddNewInterview = () => {
     }
     setLoading(false);
   };
+  const header = "Add Details about your job position, job descritpion and years of experience";
 
   return (
     <div>
       <div
-        className="p-10 rounded-lg border bg-secondary hover:scale-105 hover:shadow-sm transition-all cursor-pointer"
+        className="p-10 rounded-lg border bg-secondary hover:scale-105 hover:shadow-sm transition-all cursor-pointer bg-slate-300
+        dark:bg-transparent dark:hover:bg-gray-700"
         onClick={() => setOpenDialog(true)}
       >
         <h2 className=" text-lg text-center">+ Add New</h2>
       </div>
       <Dialog open={openDailog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl bg-slate-200 dark:bg-gray-900">
           <DialogHeader>
             <DialogTitle className="text-2xl">
               Tell us more about your job interviwing
@@ -98,34 +101,33 @@ const AddNewInterview = () => {
               <form onSubmit={onSubmit}>
                 <div className="my-3">
                   <h2>
-                    Add Details about your job position, job descritpion and
-                    years of experience
+                    {toTitleCase(header)}
                   </h2>
 
-                  <div className="mt-7 my-3">
-                    <label className="text-black">Job Role/job Position</label>
+                  <div className="mt-4 mb-3">
+                    <label className="text-black dark:text-white text-base">Job Role/job Position</label>
                     <Input
-                      className="mt-1"
+                      className="mt-1 rounded-xl"
                       placeholder="Ex. Full stack Developer"
                       required
                       onChange={(e) => setJobPosition(e.target.value)}
                     />
                   </div>
                   <div className="my-5">
-                    <label className="text-black">
-                      Job Description/ Tech stack (In Short)
+                    <label className="text-black dark:text-white text-base ">
+                      Job Description/ Tech stack ( In Short seperated by ' , ' )
                     </label>
                     <Textarea
-                      className="placeholder-opacity-50"
+                      className="placeholder-opacity-50 rounded-xl"
                       placeholder="Ex. React, Angular, Nodejs, Mysql, Nosql, Python"
                       required
                       onChange={(e) => setJobDesc(e.target.value)}
                     />
                   </div>
                   <div className="my-5">
-                    <label className="text-black">Years of Experience</label>
+                    <label className="text-black dark:text-white text-base">Years of Experience</label>
                     <Input
-                      className="mt-1"
+                      className="mt-1 rounded-xl"
                       placeholder="Ex. 5"
                       max="50"
                       type="number"
@@ -137,12 +139,13 @@ const AddNewInterview = () => {
                 <div className="flex gap-5 justify-end">
                   <Button
                     type="button"
-                    variant="goast"
+                    className="bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900"
+                    // variant="goast"
                     onClick={() => setOpenDialog(false)}
                   >
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={loading}>
+                  <Button type="submit" disabled={loading} className="bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900 ">
                     {loading ? (
                       <>
                         <LoaderCircle className="animate-spin" />

@@ -51,6 +51,7 @@ const StartInterview = ({ params }) => {
           <Button
             onClick={() => setActiveQuestionIndex(activeQuestionIndex - 1)}
             disabled={recording} // Disable while recording
+            className="bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900"
           >
             Previous Question
           </Button>
@@ -62,6 +63,7 @@ const StartInterview = ({ params }) => {
               setAnswerRecorded(false); // Reset the recording status
             }}
             disabled={ answerRecorded || recording}  
+            className="bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900"
           >
             Next Question
           </Button>
@@ -70,7 +72,7 @@ const StartInterview = ({ params }) => {
           <Link
             href={"/dashboard/interview/" + interviewData?.mockId + "/feedback"}
           >
-            <Button disabled={recording}>End Interview</Button>
+            <Button disabled={recording} className="bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900">End Interview</Button>
           </Link>
         )}
       </div>

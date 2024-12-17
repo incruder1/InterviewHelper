@@ -31,9 +31,8 @@ export default function Page() {
               Welcome to Interview Helper 📊
             </h2>
 
-            <p className="mt-4 leading-relaxed text-white/90">
-              Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eligendi
-              nam dolorum aliquam, quibusdam aperiam voluptatum.
+            <p className="mt-4 leading-relaxed text-white font-semibold">
+            Your Personal Companion for Mock Interviews and Feedback
             </p>
           </div>
         </section>

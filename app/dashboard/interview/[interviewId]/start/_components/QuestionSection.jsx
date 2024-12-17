@@ -4,7 +4,9 @@ import React from "react";
 const QuestionSection = ({ mockInterviewQuestion, activeQuestionIndex }) => {
   const textToSpeech = (text) => {
     if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
       const speech = new SpeechSynthesisUtterance(text);
+      speech.rate = 2.5; 
       window.speechSynthesis.speak(speech);
     } else {
       alert("Sorry, your browser does not support text to speech.");
@@ -12,7 +14,7 @@ const QuestionSection = ({ mockInterviewQuestion, activeQuestionIndex }) => {
   };
   return (
     mockInterviewQuestion && (
-      <div className=" flex flex-col justify-between p-5 border rounded-lg my-1 bg-secondary">
+      <div className=" flex flex-col justify-between p-5 border rounded-lg my-1">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 ">
           {mockInterviewQuestion &&
             mockInterviewQuestion.map((question, index) => (
@@ -22,6 +24,7 @@ const QuestionSection = ({ mockInterviewQuestion, activeQuestionIndex }) => {
                     ? "bg-black text-white"
                     : "bg-secondary"
                 }`}
+                key={index}
               >
                 Question #{index + 1}
               </h2>

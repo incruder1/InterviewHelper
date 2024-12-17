@@ -31,15 +31,13 @@ export default function HeroSection() {
               <Link href="#how-it-works" className="text-neutral-300 hover:text-white transition-colors">
                 How it Works
               </Link>
-              <Link href="#pricing" className="text-neutral-300 hover:text-white transition-colors">
-                Pricing
-              </Link>
               <Link href="#faq" className="text-neutral-300 hover:text-white transition-colors">
                 FAQ
               </Link>
-              <button className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-full transition-colors">
+              <a  href='/dashboard'>
+              <button className="bg-blue-800 hover:bg-primary-700 text-white px-6 py-2 rounded-full transition-colors">
                 Get Started
-              </button>
+              </button> </a>
             </div>
 
             {/* Mobile Menu Button */}

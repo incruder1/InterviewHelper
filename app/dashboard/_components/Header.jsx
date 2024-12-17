@@ -26,10 +26,7 @@ const Header = ({ logo }) => {
   }, []);
 
   const path = usePathname();
-
-  // useEffect(() => {
-  // console.log(path);
-  // }, []);
+ 
   return (
     <div className=" bg-secondary shadow-sm ">
       <div className="w-[80%] m-auto flex gap-4 items-center justify-between py-4">
@@ -39,7 +36,8 @@ const Header = ({ logo }) => {
         <ul className="hidden md:flex gap-6">
           <Link href="/dashboard">
             <li
-              className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard" && "text-black font-bold"
+              className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard" && 
+                "text-black "
                   } dark:text-slate-50 dark:hover:text-slate-50`}
             >
               Dashboard
@@ -47,7 +45,8 @@ const Header = ({ logo }) => {
           </Link>
           <Link href="/dashboard/question">
             <li
-              className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard/question" && "text-black font-bold "
+              className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard/question" &&
+                 "text-black  "
                 } dark:text-slate-50 dark:hover:text-slate-50`}
             >
               Questions
@@ -56,7 +55,8 @@ const Header = ({ logo }) => {
 
           <Link href="/dashboard/upgrade">
             <li
-              className={`hover:text-black hover:font-semibold transition-all cursor-pointer ${path == "/dashboard/upgrade" && "text-black font-medium"
+              className={`hover:text-black hover:font-semibold transition-all cursor-pointer ${path == "/dashboard/upgrade"
+                 && "text-black font-medium"
                 } dark:text-slate-50 dark:hover:text-slate-50`}
             >
               Upgrade
@@ -65,7 +65,8 @@ const Header = ({ logo }) => {
 
           <Link href="/dashboard/howit">
             <li
-              className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard/howit" && "text-black font-bold" } dark:text-slate-50 dark:hover:text-slate-50`}
+              className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard/howit" &&
+                 "text-black font-bold" } dark:text-slate-50 dark:hover:text-slate-50`}
             >
               How it works?
             </li>
@@ -85,7 +86,7 @@ const Header = ({ logo }) => {
             )}
           </button>
         </div>
-        <div className="flex gap-10" >
+        <div className="flex gap-10 " >
           <ModeToggle />
           {isUserButtonLoaded ? <UserButton /> : <SkeletonLoader />}
         </div>
@@ -96,7 +97,7 @@ const Header = ({ logo }) => {
             <ul className="px-2 pt-2 pb-3 space-y-1 sm:px-3" >
               <Link href="/dashboard">
                 <li
-                  className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard" && "text-black font-bold"
+                  className={`hover:text-black text-slate-50 hover:font-bold transition-all cursor-pointer ${path == "/dashboard" && "text-black "
                     }`}
                 >
                   Dashboard
@@ -104,7 +105,7 @@ const Header = ({ logo }) => {
               </Link>
               <Link href="/dashboard/question">
                 <li
-                  className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard/question" && "text-black font-bold"
+                  className={`hover:text-black text-slate-50 hover:font-bold transition-all cursor-pointer ${path == "/dashboard/question" && "text-black font-bold"
                     }`}
                 >
                   Questions

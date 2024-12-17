@@ -18,8 +18,8 @@ const InterviewItemCard = ({interview}) => {
         <h2 className="text-sm text-gray-400 dark:text-white my-2" >Created At:{interview.createdAt}</h2>
 
         <div className='flex justify-between mt-2 gap-5 ' >
-            <Button onClick={onFeedback} size="sm"  className="w-full my-2" >Feedback</Button>
-            <Button onClick={onStart} size="sm"  className="w-full my-2">Start</Button>
+            <Button onClick={onFeedback} size="sm"  className="w-full my-2 bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900" >Feedback</Button>
+            <Button onClick={onStart} size="sm"  className="w-full my-2 bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900">Start</Button>
         </div>
     </div>
 

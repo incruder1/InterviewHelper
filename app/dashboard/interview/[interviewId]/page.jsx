@@ -75,13 +75,13 @@ const Interview = ({ params }) => {
           )}
           <div className="flex w-full items-center justify-center">
             <Button
-              className={`${webCamEnabled ? "w-[30%]" : "w-[30%]"} m-1`}
+              className={`${webCamEnabled ? "w-[30%]" : "w-[30%]"} m-1 bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900`}
               onClick={() => setWebCamEnabled((prev) => !prev)}
             >
               {webCamEnabled ? "Close WebCam" : "Enable WebCam"}
             </Button>
             <Link href={"/dashboard/interview/" + params.interviewId + "/start"}>
-          <Button className="w-full m-1">  Start Interview</Button>
+          <Button className="w-full m-1 bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900">  Start Interview</Button>
           </Link>
           </div>
         </div>

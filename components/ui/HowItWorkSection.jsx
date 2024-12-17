@@ -2,7 +2,7 @@ import React from 'react';
 
 const HowItWorksSection = () => {
   return (
-    <section id="how_it_works" className="py-24 bg-neutral-950">
+    <section id="how-it-works" className="py-24 bg-neutral-950">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="text-center mb-16">
@@ -75,7 +75,7 @@ const steps = [
       'Customized difficulty levels',
       'Industry-specific questions',
     ],
-    image: 'https://placehold.co/600x400/1a1a1a/666666?text=Choose+Interview+Type',
+    image: 'https://img.freepik.com/free-vector/cartoon-man-robot-sitting-laptops-workplace-together_74855-20052.jpg?t=st=1734441915~exp=1734445515~hmac=0cc683b1f141cfa58476a96fd4ec4ee0a70b140efa67129b3472f1fd47c7602d&w=996',
     alt: 'Choose Interview Type',
   },
   {
@@ -88,7 +88,7 @@ const steps = [
       'Instant feedback',
       'Performance analysis',
     ],
-    image: 'https://placehold.co/600x400/1a1a1a/666666?text=Practice+Interview',
+    image: 'https://img.freepik.com/free-photo/technology-hologram-illustrated_23-2151877724.jpg?t=st=1734442029~exp=1734445629~hmac=242cc05788ce0366486035336305d647dae608db14aefb8a89a3fa9831534e68&w=996',
     alt: 'Practice Interview',
   },
   {
@@ -101,7 +101,7 @@ const steps = [
       'Improvement suggestions',
       'Progress tracking',
     ],
-    image: 'https://placehold.co/600x400/1a1a1a/666666?text=Review+and+Improve',
+    image: 'https://img.freepik.com/free-vector/successful-business-man-holding-trophy_1150-35042.jpg?t=st=1734441900~exp=1734445500~hmac=d96ad18e27c2546b6562dd63b3643e508b9edc2028d8219e4d299e8cfc0b2f5d&w=996',
     alt: 'Review and Improve',
   },
 ];
