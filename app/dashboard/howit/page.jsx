@@ -17,7 +17,7 @@ const HowItWorks = () => {
           content="Learn how our AI Mock Interview works."
         />
       </Head>
-      <main className="bg-gray-100 p-8 mt-10">
+      <main className="bg-gray-100 p-8 mt-10 dark:bg-gray-800 ">
         <h1 className="text-4xl font-bold text-center mb-8">How It Works</h1>
         <section className="space-y-8">
           <Accordion type="single" collapsible>
@@ -28,7 +28,7 @@ const HowItWorks = () => {
                 </h2>
               </AccordionTrigger>
               <AccordionContent>
-                <p className="text-gray-700">
+                <p className="text-gray-700 dark:text-gray-300 text-base">
                   Get ready by selecting the type of interview and providing
                   some details about the job position.
                 </p>
@@ -42,7 +42,7 @@ const HowItWorks = () => {
                 </h2>
               </AccordionTrigger>
               <AccordionContent>
-                <p className="text-gray-700">
+                <p className="text-gray-700 dark:text-gray-300 text-base">
                   Our AI will ask you a series of questions and evaluate your
                   responses in real-time.
                 </p>
@@ -55,7 +55,7 @@ const HowItWorks = () => {
                 </h2>
               </AccordionTrigger>
               <AccordionContent>
-                <p className="text-gray-700">
+                <p className="text-gray-700 dark:text-gray-300 text-base">
                   Get detailed feedback on your performance, including strengths
                   and areas for improvement.
                 </p>

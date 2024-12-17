@@ -16,7 +16,7 @@ const QuestionItemCard = ({ question }) => {
       <h2 className="text-xs text-gray-400">Created At:{question.createdAt}</h2>
 
       <div className="flex justify-between mt-2 gap-5 ">
-        <Button onClick={onStart} size="sm" className="w-full">
+        <Button onClick={onStart} size="sm" className="w-full bg-slate-300 dark:bg-blue-600 dark:text-white hover:bg-slate-400 dark:hover:bg-blue-900">
           Start
         </Button>
       </div>

@@ -40,7 +40,6 @@ const InterviewList = () => {
   return (
     <div>
       <h2 className="font-medium text-xl">Previous Mock Interview</h2>
-
       {loading ? (
         <div className="flex justify-center items-center ">
           <Spinner /> {/* Spinner component to indicate loading */}
