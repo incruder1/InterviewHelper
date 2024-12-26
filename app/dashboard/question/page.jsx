@@ -12,7 +12,6 @@ const Questions = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 my-5" >
         <AddQuestions/>
       </div>
-
       <QuestionList/>
     </div>
   );

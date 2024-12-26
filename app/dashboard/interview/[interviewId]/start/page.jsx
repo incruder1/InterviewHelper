@@ -8,6 +8,8 @@ import QuestionSection from "./_components/QuestionSection";
 import RecordAnswerSection from "./_components/RecordAnswerSection";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Spinner } from "@/components/ui/Spinner";
+
 
 const StartInterview = ({ params }) => {
   const [interviewData, setInterviewData] = useState();
@@ -15,13 +17,15 @@ const StartInterview = ({ params }) => {
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
   const [answerRecorded, setAnswerRecorded] = useState(false);
   const [recording, setRecording] = useState(false); // New state
-
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     GetInterviewDetails();
   }, []);
 
   const GetInterviewDetails = async () => {
-    const result = await db
+    try {
+      setLoading(true);
+      const result = await db
       .select()
       .from(MockInterview)
       .where(eq(MockInterview.mockId, params.interviewId));
@@ -29,15 +33,27 @@ const StartInterview = ({ params }) => {
     const jsonMockResp = JSON.parse(result[0].jsonMockResp);
     setMockInterviewQuestion(jsonMockResp);
     setInterviewData(result[0]);
+    } catch (error) {
+      console.log("Error fetching interview details:", error);
+    } finally {
+      setLoading(false);
+    }
+   
   };
 
   return (
     <div>
       <div className="grid grid-cols-1 md:grid-cols-2 my-10">
+      {loading?(
+              <div className="flex justify-center items-center h-64">
+                <Spinner /> {/* Spinner component to indicate loading */}
+              </div>
+            ):
         <QuestionSection
           mockInterviewQuestion={mockInterviewQuestion}
           activeQuestionIndex={activeQuestionIndex}
         />
+      }
         <RecordAnswerSection
           mockInterviewQuestion={mockInterviewQuestion}
           activeQuestionIndex={activeQuestionIndex}

@@ -13,7 +13,7 @@ export default function HeroSection() {
   };
 
   return (
-    <section id="navbar_hero" className="relative min-h-screen bg-gradient-to-b from-neutral-900 to-neutral-950 overflow-hidden">
+    <section id="navbar_hero" className="relative min-h-[70vh]  bg-gradient-to-b from-neutral-900 to-neutral-950 overflow-hidden pb-6">
       {/* Navigation */}
       <div className="relative z-50">
         <nav className="container mx-auto px-4 py-6">
@@ -82,6 +82,7 @@ export default function HeroSection() {
       </div>
 
       {/* Hero Content */}
+      
       <div className="container mx-auto px-4 pt-20 lg:pt-32">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 font-heading">
@@ -107,7 +108,7 @@ export default function HeroSection() {
         {/* Stats Section */}
         <div className="max-w-5xl mx-auto mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="text-center p-6 rounded-xl bg-white/5 backdrop-blur">
-            <div className="text-3xl font-bold text-blue-600 mb-2">10,000+</div>
+            <div className="text-3xl font-bold text-blue-600 mb-2">5,000+</div>
             <div className="text-neutral-300">Practice Sessions</div>
           </div>
           <div className="text-center p-6 rounded-xl bg-white/5 backdrop-blur">
@@ -119,12 +120,6 @@ export default function HeroSection() {
             <div className="text-neutral-300">Interview Types</div>
           </div>
         </div>
-      </div>
-
-      {/* Background Decoration */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-primary-600/20 rounded-full filter blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-secondary-600/20 rounded-full filter blur-3xl" />
       </div>
     </section>
   );

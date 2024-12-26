@@ -18,14 +18,13 @@ export default function RootLayout({ children }) {
     <ClerkProvider >
       <html lang="en">
         <body className={inter.className}>
-        <Toaster position="bottom-center" />
+        <Toaster position="bottom-center" richColors />
           <ThemeProvider
             attribute="class"
             defaultTheme="white"
             enableSystem
             disableTransitionOnChange
-          >
-            {children}
+          >{children}
           </ThemeProvider>
           </body>
       </html>

@@ -26,7 +26,6 @@ const page = () => {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      
     <HeroSection/>
     <FeaturesSection/>
     <HowItWorksSection />

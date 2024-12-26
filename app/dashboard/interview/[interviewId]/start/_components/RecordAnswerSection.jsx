@@ -60,7 +60,7 @@ const RecordAnswerSection = ({
       setIsRecording(true);
     } catch (error) {
       console.error("Error starting recording:", error);
-      toast("Error starting recording. Please check your microphone permissions.");
+      toast.error("Error starting recording. Please check your microphone permissions.");
     }
   };
 
@@ -94,7 +94,7 @@ const RecordAnswerSection = ({
       };
     } catch (error) {
       console.error("Error transcribing audio:", error);
-      toast("Error transcribing audio. Please try again.");
+      toast.error("Error transcribing audio. Please try again.");
       setLoading(false);
     }
   };
@@ -183,7 +183,7 @@ const RecordAnswerSection = ({
       // });
 
       if (resp) {
-        toast("User Answer recorded successfully");
+        toast.success("User Answer recorded successfully");
         setAnswerRecorded(false);
         setRecording(false);
       }
@@ -191,7 +191,7 @@ const RecordAnswerSection = ({
       setLoading(false);
     } catch (error) {
       console.error(error);
-      toast("An error occurred while recording the user answer");
+      toast.error("An error occurred while recording the user answer");
       setLoading(false);
       setAnswerRecorded(false);
       setRecording(false);
@@ -201,7 +201,7 @@ const RecordAnswerSection = ({
 
   return (
     <div className="flex flex-col items-center justify-center overflow-hidden">
-      <div className="flex flex-col justify-center items-center rounded-lg p-2 bg-slate-200   ">
+      <div className="flex flex-col justify-center items-center rounded-lg p-2 bg-slate-100   ">
         {webCamEnabled ? (
           <Webcam
             mirrored={true}
@@ -211,7 +211,7 @@ const RecordAnswerSection = ({
           <Image src={"/camera.jpg"} width={200} height={200} alt="Camera placeholder" />
         )}
       </div>
-      <div className="md:flex mt-4 md:mt-8 md:gap-5">
+      <div className="md:flex mt-4 md:mt-8 md:gap-5 w-full justify-center items-center sm:flex sm:gap-4 ">
         <div className="my-4 md:my-0">
           <Button onClick={() => setWebCamEnabled((prev) => !prev)}
             className="bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900">

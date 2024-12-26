@@ -49,7 +49,8 @@ const FeaturesSection = () => {
 
         {/* Call to Action */}
         <div className="text-center mt-16">
-          <button className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-full text-lg transition-colors">
+          <button className="bg-blue-700 hover:bg-primary-700 text-white px-8 py-3 rounded-full text-lg transition-colors" 
+          onClick={() => window.location.href = '/dashboard'}>
             Explore All Features
           </button>
         </div>

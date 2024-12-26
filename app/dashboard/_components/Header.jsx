@@ -37,7 +37,7 @@ const Header = ({ logo }) => {
           <Link href="/dashboard">
             <li
               className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard" && 
-                "text-black "
+                "text-black font-bold "
                   } dark:text-slate-50 dark:hover:text-slate-50`}
             >
               Dashboard
@@ -46,7 +46,7 @@ const Header = ({ logo }) => {
           <Link href="/dashboard/question">
             <li
               className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard/question" &&
-                 "text-black  "
+                 "text-black  font-bold"
                 } dark:text-slate-50 dark:hover:text-slate-50`}
             >
               Questions
@@ -56,7 +56,7 @@ const Header = ({ logo }) => {
           <Link href="/dashboard/upgrade">
             <li
               className={`hover:text-black hover:font-semibold transition-all cursor-pointer ${path == "/dashboard/upgrade"
-                 && "text-black font-medium"
+                 && "text-black font-bold"
                 } dark:text-slate-50 dark:hover:text-slate-50`}
             >
               Upgrade
@@ -97,32 +97,32 @@ const Header = ({ logo }) => {
             <ul className="px-2 pt-2 pb-3 space-y-1 sm:px-3" >
               <Link href="/dashboard">
                 <li
-                  className={`hover:text-black text-slate-50 hover:font-bold transition-all cursor-pointer ${path == "/dashboard" && "text-black "
-                    }`}
+                  className={`hover:text-slate-600 text-slate-800 hover:font-bold transition-all cursor-pointer ${path == "/dashboard" && "text-black font-bold "
+                    } dark:text-slate-50 dark:hover:text-slate-100`}
                 >
                   Dashboard
                 </li>
               </Link>
               <Link href="/dashboard/question">
                 <li
-                  className={`hover:text-black text-slate-50 hover:font-bold transition-all cursor-pointer ${path == "/dashboard/question" && "text-black font-bold"
-                    }`}
+                  className={`hover:text-slate-600 text-slate-800 hover:font-bold transition-all cursor-pointer ${path == "/dashboard/question" && "text-black font-bold"
+                    } dark:text-slate-50 dark:hover:text-slate-100`}
                 >
                   Questions
                 </li>
               </Link>
               <Link href="/dashboard/upgrade">
                 <li
-                  className={`hover:text-slate-50 hover:font-bold transition-all cursor-pointer ${path == "/dashboard/upgrade" && " font-bold"
-                    }`}
+                  className={`hover:text-slate-600 text-slate-800 hover:font-bold transition-all cursor-pointer ${path == "/dashboard/upgrade" && " text-black font-bold"
+                    } dark:text-slate-50 dark:hover:text-slate-100`}
                 >
                   Upgrade
                 </li>
               </Link>
               <Link href="/dashboard/howit">
                 <li
-                  className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard/howit" && "text-black font-bold"
-                    }`}
+                  className={`hover:text-slate-600 text-slate-800 hover:font-bold transition-all cursor-pointer ${path == "/dashboard/howit" && "text-black font-bold"
+                    } dark:text-slate-50 dark:hover:text-slate-100`}
                 >
                   How it works?
                 </li>

@@ -1,12 +1,16 @@
+ 
 import { Lightbulb, Volume2 } from "lucide-react";
 import React from "react";
+import { Spinner } from "@/components/ui/Spinner";
+
 
 const QuestionSection = ({ mockInterviewQuestion, activeQuestionIndex }) => {
+ 
   const textToSpeech = (text) => {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       const speech = new SpeechSynthesisUtterance(text);
-      speech.rate = 2.5; 
+      speech.rate = 1; 
       window.speechSynthesis.speak(speech);
     } else {
       alert("Sorry, your browser does not support text to speech.");
@@ -21,8 +25,8 @@ const QuestionSection = ({ mockInterviewQuestion, activeQuestionIndex }) => {
               <h2
                 className={`p-2  rounded-full text-center text-xs md:text-sm cursor-pointer md:block hidden ${
                   activeQuestionIndex == index
-                    ? "bg-black text-white"
-                    : "bg-secondary"
+                    ? "bg-slate-600 text-white"
+                    : "dark:bg-slate-800 dark:font-white bg-slate-100  "
                 }`}
                 key={index}
               >

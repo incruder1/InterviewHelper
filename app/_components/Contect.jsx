@@ -31,21 +31,21 @@ const Contect = () => {
         });
 
         if (resp) {
-          toast("User Response recorded successfully");
+          toast.success("User Response recorded successfully");
           setName("");
           setEmail("");
           setMessage("");
         } else {
-          toast("Error recording response");
+          toast.error("Error recording response");
         }
       } catch (error) {
         console.error(error);
-        toast("Error recording response");
+        toast.error("Error recording response");
       } finally {
         setLoading(false);
       }
     } else {
-      toast("No data entered");
+      toast.info("No data entered");
     }
   };
   return (
