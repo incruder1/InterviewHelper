@@ -1,31 +1,23 @@
 "use client";
-import { useUser } from "@clerk/nextjs";
+import { useAuth } from "@clerk/nextjs";
 import React, { useEffect, useState } from "react";
-import { db } from "@/utils/db";
-import { Question } from "@/utils/schema";
-import { desc, eq } from "drizzle-orm";
 import QuestionItemCard from "./QuestionItemCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { listQuestions } from "@/utils/api";
 
 const QuestionList = () => {
-  const { user } = useUser();
+  const { getToken } = useAuth();
   const [questionList, setQuestionList] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      GetQuestionList();
-    }
-  }, [user]);
+    GetQuestionList();
+  }, []);
 
   const GetQuestionList = async () => {
     try {
-      const result = await db
-        .select()
-        .from(Question)
-        .where(eq(Question.createdBy, user?.primaryEmailAddress?.emailAddress))
-        .orderBy(desc(Question.id));
-
+      const token = await getToken();
+      const result = await listQuestions(token);
       setQuestionList(result);
     } catch (error) {
       console.error("Error fetching questions:", error);

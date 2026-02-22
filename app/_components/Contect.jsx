@@ -1,15 +1,11 @@
 "use client";
-import { db } from "@/utils/db";
-import { Newsletter } from "@/utils/schema";
 import { LoaderCircle } from "lucide-react";
-import moment from "moment";
 import React, { useState } from "react";
 import { toast } from "sonner";
+import { submitNewsletter } from "@/utils/api";
 
 const Contect = () => {
-  const handleInputChange = (setState) => (e) => {
-    setState(e.target.value);
-  };
+  const handleInputChange = (setState) => (e) => setState(e.target.value);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -18,36 +14,29 @@ const Contect = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    // console.log(name, email, message);
-
     if (name && email && message) {
       setLoading(true);
       try {
-        const resp = await db.insert(Newsletter).values({
+        await submitNewsletter({
           newName: name,
           newEmail: email,
           newMessage: message,
-          createdAt: moment().format("YYYY-MM-DD"),
         });
-
-        if (resp) {
-          toast.success("User Response recorded successfully");
-          setName("");
-          setEmail("");
-          setMessage("");
-        } else {
-          toast.error("Error recording response");
-        }
+        toast.success("Message sent successfully");
+        setName("");
+        setEmail("");
+        setMessage("");
       } catch (error) {
         console.error(error);
-        toast.error("Error recording response");
+        toast.error("Failed to send message. Please try again.");
       } finally {
         setLoading(false);
       }
     } else {
-      toast.info("No data entered");
+      toast.info("Please fill in all fields");
     }
   };
+
   return (
     <div className="container mx-auto text-center">
       <h2 className="text-4xl font-bold text-gray-800">Get In Touch</h2>
