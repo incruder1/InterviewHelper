@@ -7,19 +7,14 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LoaderCircle } from "lucide-react";
-import { chatSession } from "@/utils/GeminiAIModal";
-import { v4 as uuidv4 } from "uuid";
-import { db } from "@/utils/db";
-import { useUser } from "@clerk/nextjs";
-import moment from "moment";
-import { Question } from "@/utils/schema";
+import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
+import { createQuestion } from "@/utils/api";
 
 const AddQuestions = () => {
   const [openDailog, setOpenDialog] = useState(false);
@@ -27,91 +22,42 @@ const AddQuestions = () => {
   const [jobDesc, setJobDesc] = useState("");
   const [typeQuestion, setTypeQuestion] = useState("");
   const [company, setCompany] = useState("");
-  const [jobExperience, setJobExperience] = useState();
+  const [jobExperience, setJobExperience] = useState("");
   const [loading, setLoading] = useState(false);
-  const [questionJsonResponse, setQuestionJsonResponse] = useState([]);
-  const { user } = useUser();
+  const { getToken } = useAuth();
   const router = useRouter();
-  const handleInputChange = (setState) => (e) => {
-    setState(e.target.value);
-  };
+
+  const handleInputChange = (setState) => (e) => setState(e.target.value);
 
   const onSubmit = async (e) => {
-    setLoading(true);
     e.preventDefault();
-    // console.log(
-    //   "Data",
-    //   jobPosition,
-    //   jobDesc,
-    //   typeQuestion,
-    //   company,
-    //   jobExperience
-    // );
-
-    const InputPrompt = `
-    Job Positions: ${jobPosition},
-    Job Description: ${jobDesc},
-    Years of Experience: ${jobExperience},
-    Which type of question: ${typeQuestion},
-    This company previous question: ${company},
-    Based on this information, please provide 5 interview questions with answers in JSON format.
-    Each question and answer should be fields in the JSON. Ensure "Question" and "Answer" are fields.
-}  
-  `;
-    // console.log("InputPrompt:", InputPrompt);
-
+    setLoading(true);
     try {
-      const result = await chatSession.sendMessage(InputPrompt);
-      const MockQuestionJsonResp = result.response
-        .text()
-        .replace("```json", "")
-        .replace("```", "")
-        .trim();
-      // console.log("Parsed data", JSON.parse(MockQuestionJsonResp));
-      
-      // console.log("JSON RESPONSE", MockQuestionJsonResp);
-      // console.log("Parsed RESPONSE", JSON.parse(MockQuestionJsonResp))
-
-      if (MockQuestionJsonResp) {
-        const resp = await db
-          .insert(Question)
-          .values({
-            mockId: uuidv4(),
-            MockQuestionJsonResp: MockQuestionJsonResp,
-            jobPosition: jobPosition,
-            jobDesc: jobDesc,
-            jobExperience: jobExperience,
-            typeQuestion: typeQuestion,
-            company: company,
-            createdBy: user?.primaryEmailAddress?.emailAddress,
-            createdAt: moment().format("YYYY-MM-DD"),
-          })
-          .returning({ mockId: Question.mockId });
-
-        // console.log("Inserted ID:", resp);
-
-        if (resp) {
-          setOpenDialog(false);
-
-          router.push("/dashboard/pyq/" + resp[0]?.mockId);
-        }
-      } else {
-        console.log("ERROR");
-      }
+      const token = await getToken();
+      const question = await createQuestion(token, {
+        jobPosition,
+        jobDesc,
+        jobExperience: String(jobExperience),
+        typeQuestion,
+        company,
+      });
+      setOpenDialog(false);
+      router.push("/dashboard/pyq/" + question.mockId);
     } catch (error) {
-      console.error("Failed to parse JSON:", error.message);
+      console.error("Failed to generate questions:", error.message);
       alert("There was an error processing the data. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+
   return (
     <div>
       <div
         className="p-10 rounded-lg border bg-secondary hover:scale-105 hover:shadow-sm transition-all cursor-pointer"
         onClick={() => setOpenDialog(true)}
       >
-        <h2 className=" text-lg text-center">+ Add New Questions</h2>
+        <h2 className="text-lg text-center">+ Add New Questions</h2>
       </div>
 
       <Dialog open={openDailog}>
@@ -188,7 +134,7 @@ const AddQuestions = () => {
                 <div className="flex gap-5 justify-end">
                   <Button
                     type="button"
-                    variant="goast"
+                    variant="ghost"
                     onClick={() => setOpenDialog(false)}
                   >
                     Cancel

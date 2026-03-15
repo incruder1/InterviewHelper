@@ -1,50 +1,44 @@
 "use client";
-import { db } from "@/utils/db";
-import { MockInterview } from "@/utils/schema";
-import { eq } from "drizzle-orm";
 import { Lightbulb, WebcamIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import Webcam from "react-webcam";
 import Link from "next/link";
-import { useContext } from 'react';
+import { useContext } from "react";
 import { WebCamContext } from "../../layout";
 import { toTitleCase } from "@/utils/utilities";
 import { Spinner } from "@/components/ui/Spinner";
+import { useAuth } from "@clerk/nextjs";
+import { getInterview } from "@/utils/api";
 
 const Interview = ({ params }) => {
   const { webCamEnabled, setWebCamEnabled } = useContext(WebCamContext);
   const [interviewData, setInterviewData] = useState();
   const [loading, setLoading] = useState(true);
+  const { getToken } = useAuth();
 
   useEffect(() => {
     GetInterviewDetails();
   }, []);
 
   const GetInterviewDetails = async () => {
-   
     try {
       setLoading(true);
-      const result = await db
-      .select()
-      .from(MockInterview)
-      .where(eq(MockInterview.mockId, params.interviewId));
-
-    setInterviewData(result[0]);
+      const token = await getToken();
+      const result = await getInterview(token, params.interviewId);
+      setInterviewData(result);
     } catch (error) {
-      console.log("Error fetching interview details:", error);
-    }finally {
-      setLoading(false); // Set loading to false after fetching data
+      console.error("Error fetching interview details:", error);
+    } finally {
+      setLoading(false);
     }
-   
-     
   };
 
   return (
     <div className="my-10">
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <Spinner /> {/* Spinner component to indicate loading */}
+          <Spinner />
         </div>
       ) : (
         <>
