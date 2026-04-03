@@ -1,48 +1,47 @@
 package service
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strings"
 
-	"github.com/google/generative-ai-go/genai"
-	"google.golang.org/api/option"
+	openai "github.com/sashabaranov/go-openai"
 )
 
-// QAPair is the JSON shape Gemini returns for interview/question generation.
+const (
+	groqTextModel  = "llama-3.3-70b-versatile"
+	groqAudioModel = "whisper-large-v3"
+	groqBaseURL    = "https://api.groq.com/openai/v1"
+)
+
+// QAPair is the JSON shape the LLM returns for interview/question generation.
 type QAPair struct {
 	Question string `json:"Question"`
 	Answer   string `json:"Answer"`
 }
 
-// FeedbackResult is the JSON shape Gemini returns for answer evaluation.
+// FeedbackResult is the JSON shape the LLM returns for answer evaluation.
 type FeedbackResult struct {
 	Rating   string `json:"rating"`
 	Feedback string `json:"feedback"`
 }
 
-// GeminiService wraps the Gemini generative AI client.
-type GeminiService struct {
-	client *genai.Client
+// GroqService wraps the Groq API client (OpenAI-compatible).
+type GroqService struct {
+	client *openai.Client
 }
 
-func NewGeminiService(ctx context.Context, apiKey string) (*GeminiService, error) {
-	client, err := genai.NewClient(ctx, option.WithAPIKey(apiKey))
-	if err != nil {
-		return nil, fmt.Errorf("gemini: failed to create client: %w", err)
-	}
-	return &GeminiService{client: client}, nil
+func NewGroqService(apiKey string) *GroqService {
+	cfg := openai.DefaultConfig(apiKey)
+	cfg.BaseURL = groqBaseURL
+	return &GroqService{client: openai.NewClientWithConfig(cfg)}
 }
 
-func (g *GeminiService) Close() {
-	g.client.Close()
-}
-
-// GenerateInterviewQuestions asks Gemini for 5 Q&A pairs for a mock interview.
-// Returns the raw JSON string (stored verbatim in the DB) and the parsed pairs.
-func (g *GeminiService) GenerateInterviewQuestions(
+// GenerateInterviewQuestions asks the LLM for 5 Q&A pairs for a mock interview.
+func (g *GroqService) GenerateInterviewQuestions(
 	ctx context.Context,
 	jobPosition, jobDesc, jobExperience string,
 ) (rawJSON string, pairs []QAPair, err error) {
@@ -58,13 +57,13 @@ func (g *GeminiService) GenerateInterviewQuestions(
 		return "", nil, err
 	}
 	if err = json.Unmarshal([]byte(rawJSON), &pairs); err != nil {
-		return "", nil, fmt.Errorf("gemini: failed to parse Q&A JSON: %w (raw: %s)", err, rawJSON)
+		return "", nil, fmt.Errorf("groq: failed to parse Q&A JSON: %w (raw: %s)", err, rawJSON)
 	}
 	return rawJSON, pairs, nil
 }
 
-// GenerateQuestionBankQuestions asks Gemini for 5 Q&A pairs for a question bank entry.
-func (g *GeminiService) GenerateQuestionBankQuestions(
+// GenerateQuestionBankQuestions asks the LLM for 5 Q&A pairs for a question bank entry.
+func (g *GroqService) GenerateQuestionBankQuestions(
 	ctx context.Context,
 	jobPosition, jobDesc, jobExperience, typeQuestion, company string,
 ) (rawJSON string, pairs []QAPair, err error) {
@@ -81,13 +80,13 @@ func (g *GeminiService) GenerateQuestionBankQuestions(
 		return "", nil, err
 	}
 	if err = json.Unmarshal([]byte(rawJSON), &pairs); err != nil {
-		return "", nil, fmt.Errorf("gemini: failed to parse Q&A JSON: %w (raw: %s)", err, rawJSON)
+		return "", nil, fmt.Errorf("groq: failed to parse Q&A JSON: %w (raw: %s)", err, rawJSON)
 	}
 	return rawJSON, pairs, nil
 }
 
-// EvaluateAnswer asks Gemini to rate and provide feedback on a user's answer.
-func (g *GeminiService) EvaluateAnswer(
+// EvaluateAnswer asks the LLM to rate and provide feedback on a user's answer.
+func (g *GroqService) EvaluateAnswer(
 	ctx context.Context,
 	question, userAnswer string,
 ) (*FeedbackResult, error) {
@@ -105,13 +104,13 @@ func (g *GeminiService) EvaluateAnswer(
 	}
 	var result FeedbackResult
 	if err = json.Unmarshal([]byte(raw), &result); err != nil {
-		return nil, fmt.Errorf("gemini: failed to parse feedback JSON: %w (raw: %s)", err, raw)
+		return nil, fmt.Errorf("groq: failed to parse feedback JSON: %w (raw: %s)", err, raw)
 	}
 	return &result, nil
 }
 
-// TranscribeAudio sends base64-encoded audio to Gemini and returns the transcript.
-func (g *GeminiService) TranscribeAudio(
+// TranscribeAudio sends base64-encoded audio to Groq Whisper and returns the transcript.
+func (g *GroqService) TranscribeAudio(
 	ctx context.Context,
 	audioBase64, mimeType string,
 ) (string, error) {
@@ -121,58 +120,53 @@ func (g *GeminiService) TranscribeAudio(
 
 	audioBytes, err := base64.StdEncoding.DecodeString(audioBase64)
 	if err != nil {
-		return "", fmt.Errorf("gemini: invalid base64 audio: %w", err)
+		return "", fmt.Errorf("groq: invalid base64 audio: %w", err)
 	}
 
-	model := g.client.GenerativeModel("gemini-1.5-flash")
+	// Derive a filename extension from the MIME type for the multipart upload.
+	ext := "webm"
+	if strings.Contains(mimeType, "mp4") {
+		ext = "mp4"
+	} else if strings.Contains(mimeType, "wav") {
+		ext = "wav"
+	} else if strings.Contains(mimeType, "mp3") || strings.Contains(mimeType, "mpeg") {
+		ext = "mp3"
+	} else if strings.Contains(mimeType, "ogg") {
+		ext = "ogg"
+	}
 
-	resp, err := model.GenerateContent(ctx,
-		genai.Text("Transcribe the following audio, returning only the transcript text:"),
-		genai.Blob{MIMEType: mimeType, Data: audioBytes},
-	)
+	resp, err := g.client.CreateTranscription(ctx, openai.AudioRequest{
+		Model:    groqAudioModel,
+		FilePath: "audio." + ext,
+		Reader:   bytes.NewReader(audioBytes),
+	})
 	if err != nil {
-		return "", fmt.Errorf("gemini: transcription failed: %w", err)
+		return "", fmt.Errorf("groq: transcription failed: %w", err)
 	}
-	return extractText(resp), nil
+	return resp.Text, nil
 }
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
-func (g *GeminiService) generateText(ctx context.Context, prompt string) (string, error) {
-	model := g.client.GenerativeModel("gemini-1.5-flash")
-	model.SetTemperature(1.0)
-	model.SetTopP(0.95)
-	model.SetTopK(64)
-	model.SetMaxOutputTokens(8192)
-
-	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
+func (g *GroqService) generateText(ctx context.Context, prompt string) (string, error) {
+	resp, err := g.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
+		Model: groqTextModel,
+		Messages: []openai.ChatCompletionMessage{
+			{Role: openai.ChatMessageRoleUser, Content: prompt},
+		},
+		Temperature: 1.0,
+		MaxTokens:   8192,
+	})
 	if err != nil {
-		return "", fmt.Errorf("gemini: GenerateContent failed: %w", err)
+		return "", fmt.Errorf("groq: chat completion failed: %w", err)
 	}
-
-	text := cleanJSON(extractText(resp))
-	if text == "" {
-		return "", fmt.Errorf("gemini: empty response")
+	if len(resp.Choices) == 0 {
+		return "", fmt.Errorf("groq: empty response")
 	}
-	return text, nil
+	return cleanJSON(resp.Choices[0].Message.Content), nil
 }
 
-func extractText(resp *genai.GenerateContentResponse) string {
-	var sb strings.Builder
-	for _, cand := range resp.Candidates {
-		if cand.Content == nil {
-			continue
-		}
-		for _, part := range cand.Content.Parts {
-			if txt, ok := part.(genai.Text); ok {
-				sb.WriteString(string(txt))
-			}
-		}
-	}
-	return sb.String()
-}
-
-// cleanJSON strips markdown code fences that Gemini sometimes wraps around JSON.
+// cleanJSON strips markdown code fences that LLMs sometimes wrap around JSON.
 func cleanJSON(s string) string {
 	s = strings.TrimSpace(s)
 	s = strings.TrimPrefix(s, "```json")

@@ -19,12 +19,12 @@ type InterviewService interface {
 }
 
 type interviewService struct {
-	repo   repository.InterviewRepository
-	gemini *GeminiService
+	repo repository.InterviewRepository
+	groq *GroqService
 }
 
-func NewInterviewService(repo repository.InterviewRepository, gemini *GeminiService) InterviewService {
-	return &interviewService{repo: repo, gemini: gemini}
+func NewInterviewService(repo repository.InterviewRepository, groq *GroqService) InterviewService {
+	return &interviewService{repo: repo, groq: groq}
 }
 
 func (s *interviewService) CreateInterview(
@@ -32,7 +32,7 @@ func (s *interviewService) CreateInterview(
 	email string,
 	req dto.CreateInterviewRequest,
 ) (*models.MockInterview, error) {
-	rawJSON, _, err := s.gemini.GenerateInterviewQuestions(ctx, req.JobPosition, req.JobDesc, req.JobExperience)
+	rawJSON, _, err := s.groq.GenerateInterviewQuestions(ctx, req.JobPosition, req.JobDesc, req.JobExperience)
 	if err != nil {
 		return nil, fmt.Errorf("interviewService.CreateInterview: AI generation failed: %w", err)
 	}

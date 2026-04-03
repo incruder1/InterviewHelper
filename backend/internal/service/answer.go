@@ -18,17 +18,17 @@ type AnswerService interface {
 }
 
 type answerService struct {
-	repo        repository.AnswerRepository
+	repo          repository.AnswerRepository
 	interviewRepo repository.InterviewRepository
-	gemini      *GeminiService
+	groq          *GroqService
 }
 
 func NewAnswerService(
 	repo repository.AnswerRepository,
 	interviewRepo repository.InterviewRepository,
-	gemini *GeminiService,
+	groq *GroqService,
 ) AnswerService {
-	return &answerService{repo: repo, interviewRepo: interviewRepo, gemini: gemini}
+	return &answerService{repo: repo, interviewRepo: interviewRepo, groq: groq}
 }
 
 func (s *answerService) UpsertAnswer(
@@ -52,7 +52,7 @@ func (s *answerService) UpsertAnswer(
 
 	// If audio is provided, transcribe it first (overrides any userAns in the request).
 	if req.AudioBase64 != "" {
-		transcript, err := s.gemini.TranscribeAudio(ctx, req.AudioBase64, req.AudioMimeType)
+		transcript, err := s.groq.TranscribeAudio(ctx, req.AudioBase64, req.AudioMimeType)
 		if err != nil {
 			return nil, fmt.Errorf("answerService.UpsertAnswer: transcription failed: %w", err)
 		}
@@ -64,7 +64,7 @@ func (s *answerService) UpsertAnswer(
 	}
 
 	// Generate AI feedback.
-	feedback, err := s.gemini.EvaluateAnswer(ctx, req.Question, userAns)
+	feedback, err := s.groq.EvaluateAnswer(ctx, req.Question, userAns)
 	if err != nil {
 		return nil, fmt.Errorf("answerService.UpsertAnswer: feedback generation failed: %w", err)
 	}
