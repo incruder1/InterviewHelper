@@ -17,12 +17,12 @@ type QuestionService interface {
 }
 
 type questionService struct {
-	repo   repository.QuestionRepository
-	gemini *GeminiService
+	repo repository.QuestionRepository
+	groq *GroqService
 }
 
-func NewQuestionService(repo repository.QuestionRepository, gemini *GeminiService) QuestionService {
-	return &questionService{repo: repo, gemini: gemini}
+func NewQuestionService(repo repository.QuestionRepository, groq *GroqService) QuestionService {
+	return &questionService{repo: repo, groq: groq}
 }
 
 func (s *questionService) CreateQuestion(
@@ -30,7 +30,7 @@ func (s *questionService) CreateQuestion(
 	email string,
 	req dto.CreateQuestionRequest,
 ) (*models.Question, error) {
-	rawJSON, _, err := s.gemini.GenerateQuestionBankQuestions(
+	rawJSON, _, err := s.groq.GenerateQuestionBankQuestions(
 		ctx,
 		req.JobPosition, req.JobDesc, req.JobExperience,
 		req.TypeQuestion, req.Company,

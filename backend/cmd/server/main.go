@@ -35,13 +35,8 @@ func main() {
 		log.Fatalf("database error: %v", err)
 	}
 
-	// Wire up Gemini client (uses a background context for client lifecycle).
-	geminiCtx := context.Background()
-	geminiSvc, err := service.NewGeminiService(geminiCtx, cfg.GeminiAPIKey)
-	if err != nil {
-		log.Fatalf("gemini error: %v", err)
-	}
-	defer geminiSvc.Close()
+	// Wire up Groq client.
+	groqSvc := service.NewGroqService(cfg.GroqAPIKey)
 
 	// Repositories.
 	interviewRepo := repository.NewInterviewRepository(db)
@@ -50,9 +45,9 @@ func main() {
 	newsletterRepo := repository.NewNewsletterRepository(db)
 
 	// Services.
-	interviewSvc := service.NewInterviewService(interviewRepo, geminiSvc)
-	questionSvc := service.NewQuestionService(questionRepo, geminiSvc)
-	answerSvc := service.NewAnswerService(answerRepo, interviewRepo, geminiSvc)
+	interviewSvc := service.NewInterviewService(interviewRepo, groqSvc)
+	questionSvc := service.NewQuestionService(questionRepo, groqSvc)
+	answerSvc := service.NewAnswerService(answerRepo, interviewRepo, groqSvc)
 	newsletterSvc := service.NewNewsletterService(newsletterRepo)
 
 	// Handlers.
@@ -74,7 +69,7 @@ func main() {
 		Addr:         ":" + cfg.Port,
 		Handler:      r,
 		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 60 * time.Second, // generous for Gemini calls
+		WriteTimeout: 60 * time.Second, // generous for LLM calls
 		IdleTimeout:  90 * time.Second,
 	}
 

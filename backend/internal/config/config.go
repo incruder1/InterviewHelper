@@ -11,7 +11,7 @@ import (
 type Config struct {
 	DatabaseURL    string
 	ClerkSecretKey string
-	GeminiAPIKey   string
+	GroqAPIKey     string
 	Port           string
 	CORSOrigins    []string
 	AppEnv         string
@@ -24,7 +24,7 @@ func Load() (*Config, error) {
 	cfg := &Config{
 		DatabaseURL:    os.Getenv("DATABASE_URL"),
 		ClerkSecretKey: os.Getenv("CLERK_SECRET_KEY"),
-		GeminiAPIKey:   os.Getenv("GEMINI_API_KEY"),
+		GroqAPIKey:     os.Getenv("GROQ_API_KEY"),
 		Port:           os.Getenv("PORT"),
 		AppEnv:         os.Getenv("APP_ENV"),
 	}
@@ -35,8 +35,8 @@ func Load() (*Config, error) {
 	if cfg.ClerkSecretKey == "" {
 		return nil, fmt.Errorf("CLERK_SECRET_KEY is required")
 	}
-	if cfg.GeminiAPIKey == "" {
-		return nil, fmt.Errorf("GEMINI_API_KEY is required")
+	if cfg.GroqAPIKey == "" {
+		return nil, fmt.Errorf("GROQ_API_KEY is required")
 	}
 
 	if cfg.Port == "" {
