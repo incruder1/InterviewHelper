@@ -1,26 +1,29 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
+"use client";
 import { useRouter } from "next/navigation";
+import Badge from "@/components/common/Badge";
+import GlowButton from "@/components/common/GlowButton";
+import DarkCard from "@/components/common/DarkCard";
 
 const QuestionItemCard = ({ question }) => {
   const router = useRouter();
-  const onStart = () => {
-    router.push("/dashboard/pyq/" + question?.mockId);
-  };
-  return (
-    <div className="border border-gray-500 shadow-sm rounded-lg p-3">
-      <h2 className="font-bold text-primary">{question?.jobPosition}</h2>
-      <h2 className="text-sm text-gray-600">
-        {question?.jobExperience} Years of experience
-      </h2>
-      <h2 className="text-xs text-gray-400">Created At:{question.createdAt}</h2>
 
-      <div className="flex justify-between mt-2 gap-5 ">
-        <Button onClick={onStart} size="sm" className="w-full bg-slate-300 dark:bg-blue-600 dark:text-white hover:bg-slate-400 dark:hover:bg-blue-900">
-          Start
-        </Button>
-      </div>
-    </div>
+  return (
+    <DarkCard hoverBorder="rgba(59,130,246,0.3)">
+      <Badge variant="blue" className="mb-4">
+        {question?.jobPosition}
+      </Badge>
+
+      <p className="text-white/80 text-sm mb-1">{question?.jobExperience} yrs experience</p>
+      <p className="text-[#4a4a6a] text-xs mb-5">Created {question?.createdAt}</p>
+
+      <GlowButton
+        variant="blue"
+        className="w-full"
+        onClick={() => router.push(`/dashboard/pyq/${question?.mockId}`)}
+      >
+        Start →
+      </GlowButton>
+    </DarkCard>
   );
 };
 

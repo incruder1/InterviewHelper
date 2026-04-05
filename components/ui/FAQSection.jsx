@@ -1,93 +1,40 @@
-import React, { useState } from 'react';
-import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
+"use client";
+import { useState } from "react";
+import { FAQS } from "@/constants/landing";
+import SectionDivider from "@/components/common/SectionDivider";
+import SectionHeader from "@/components/common/SectionHeader";
 
 const FAQSection = () => {
-  const [faqItems, setFaqItems] = useState([
-    {
-      question: 'How does the AI interview practice work?',
-      answer:
-        'Our AI system powered by Google Gemini conducts realistic interview simulations. It adapts to your responses, provides real-time feedback, and helps you improve your interview skills through personalized coaching.',
-      open: false,
-    },
-    {
-      question: 'What types of interviews can I practice?',
-      answer:
-        'We offer various interview types including technical, behavioral, HR, case interviews, and industry-specific scenarios. Each type is customized to your experience level and target role.',
-      open: false,
-    },
-    {
-      question: 'Is my practice data secure?',
-      answer:
-        'Yes, we take data security seriously. All your practice sessions and personal information are encrypted and stored securely. We never share your data with third parties without your explicit consent.',
-      open: false,
-    },
-    {
-      question: 'Can I cancel my subscription anytime?',
-      answer:
-        'Yes, you can cancel your subscription at any time. Your access will continue until the end of your current billing period. No hidden fees or cancellation charges.',
-      open: false,
-    },
-    {
-      question: 'Do you offer interview questions for specific companies?',
-      answer:
-        'Yes, our Pro and Enterprise plans include company-specific interview questions and scenarios based on real interview experiences and industry research.',
-      open: false,
-    },
-  ]);
-
-  const toggleFAQ = (index) => {
-    const updatedFAQItems = [...faqItems];
-    updatedFAQItems[index].open = !updatedFAQItems[index].open;
-    setFaqItems(updatedFAQItems);
-  };
-  // console.log(faqItems);
+  const [openIndex, setOpenIndex] = useState(null);
 
   return (
-    <section id="faq" className="py-24 bg-neutral-900">
-      <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-heading">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-neutral-300 max-w-2xl mx-auto">
-            Find answers to common questions about Interview Helper
-          </p>
-        </div>
+    <section id="faq" className="py-32 bg-[#080808] relative">
+      <SectionDivider />
 
-        {/* FAQ Grid */}
-        <div className="max-w-4xl mx-auto space-y-6">
-          {faqItems.map((item, index) => (
-            <div key={index} className="border border-neutral-700 rounded-xl bg-neutral-800 overflow-hidden">
+      <div className="max-w-2xl mx-auto px-6">
+        <SectionHeader tag="FAQ" title="Common questions" subtitle="Everything you need to know about InterviewHelper" />
+
+        <div className="space-y-2">
+          {FAQS.map((item, index) => (
+            <div key={index} className="border border-zinc-800 hover:border-zinc-700 rounded-2xl overflow-hidden transition-colors duration-200">
               <button
-                className="w-full flex items-center justify-between p-6 text-left"
-                onClick={() => toggleFAQ(index)}
+                className="w-full flex items-center justify-between p-5 text-left gap-4"
+                onClick={() => setOpenIndex(openIndex === index ? null : index)}
               >
-                <h3 className="text-lg font-semibold text-white">{item.question}</h3>
-                <span className={`text-primary-400 transition-transform duration-300 ${item.open ? 'rotate-180' : ''}`}>
-                  {item.open ? <IoIosArrowUp color='white' size={20} /> : <IoIosArrowDown color='white' size={20} />}
+                <span className="text-sm font-medium text-white">{item.question}</span>
+                <span className={`flex-shrink-0 w-6 h-6 rounded-full border flex items-center justify-center transition-all duration-300 ${openIndex === index ? "rotate-45 border-violet-500 bg-violet-600/20" : "border-zinc-700 bg-zinc-900"}`}>
+                  <svg className="w-3 h-3 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
                 </span>
               </button>
-              {item.open && (
-                <div className="border-t border-neutral-700 p-6">
-                  <p className="text-neutral-300">{item.answer}</p>
+              {openIndex === index && (
+                <div className="px-5 pb-5 border-t border-zinc-800/50">
+                  <p className="text-zinc-400 text-sm leading-relaxed pt-4">{item.answer}</p>
                 </div>
               )}
             </div>
           ))}
-        </div>
-
-        {/* Additional Support */}
-        <div className="mt-16 text-center">
-          <p className="text-neutral-300 mb-6">Still have questions? We're here to help!</p>
-          <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <button className="bg-blue-600 hover:bg-blue-900 text-white px-8 py-3 rounded-full text-lg transition-colors">
-              Contact Support
-            </button>
-            <button className="border border-neutral-700 text-white hover:bg-neutral-800 px-8 py-3 rounded-full text-lg transition-colors">
-              View Documentation
-            </button>
-          </div>
         </div>
       </div>
     </section>

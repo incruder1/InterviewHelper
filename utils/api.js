@@ -40,6 +40,8 @@ export const listInterviews = (token) =>
 export const getInterview = (token, mockId) =>
   request(`/interviews/${mockId}`, token);
 
+export const deleteInterview = (token, mockId) =>
+  request(`/interviews/${mockId}`, token, { method: "DELETE" });
 // ── Answers ───────────────────────────────────────────────────────────────────
 
 export const upsertAnswer = (token, mockId, data) =>

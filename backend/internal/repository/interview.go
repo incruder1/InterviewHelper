@@ -13,6 +13,7 @@ type InterviewRepository interface {
 	Create(ctx context.Context, interview *models.MockInterview) error
 	FindByUser(ctx context.Context, email string) ([]models.MockInterview, error)
 	FindByMockID(ctx context.Context, mockID string) (*models.MockInterview, error)
+	Delete(ctx context.Context, email, mockID string) error
 }
 
 type interviewRepo struct {
@@ -55,4 +56,19 @@ func (r *interviewRepo) FindByMockID(ctx context.Context, mockID string) (*model
 		return nil, fmt.Errorf("interviewRepo.FindByMockID: %w", result.Error)
 	}
 	return &interview, nil
+}
+
+func (r *interviewRepo) Delete(ctx context.Context, email, mockID string) error {
+	fmt.Printf("[REPO DELETE] mockId=%q email=%q\n", mockID, email)
+	result := r.db.WithContext(ctx).
+		Where("\"mockId\" = ? AND \"createdBy\" = ?", mockID, email).
+		Delete(&models.MockInterview{})
+	fmt.Printf("[REPO DELETE] RowsAffected=%d err=%v\n", result.RowsAffected, result.Error)
+	if result.Error != nil {
+		return fmt.Errorf("interviewRepo.Delete: %w", result.Error)
+	}
+	if result.RowsAffected == 0 {
+		return ErrNotFound
+	}
+	return nil
 }

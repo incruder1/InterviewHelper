@@ -1,55 +1,39 @@
 "use client";
-import { useAuth } from "@clerk/nextjs";
-import React, { useEffect, useState } from "react";
+import { useQuestionList } from "@/hooks/useQuestions";
 import QuestionItemCard from "./QuestionItemCard";
-import { Skeleton } from "@/components/ui/skeleton";
-import { listQuestions } from "@/utils/api";
+import LoadingGrid from "@/components/common/LoadingGrid";
+import EmptyState from "@/components/common/EmptyState";
 
 const QuestionList = () => {
-  const { getToken } = useAuth();
-  const [questionList, setQuestionList] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    GetQuestionList();
-  }, []);
-
-  const GetQuestionList = async () => {
-    try {
-      const token = await getToken();
-      const result = await listQuestions(token);
-      setQuestionList(result);
-    } catch (error) {
-      console.error("Error fetching questions:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { list, isLoading } = useQuestionList();
 
   return (
     <div>
-      {loading ? (
-        <div className="my-10 flex flex-col gap-5">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <Skeleton
-              key={index}
-              className="w-full sm:w-[20rem] h-10 rounded-full animate-pulse bg-gray-300"
-            />
-          ))}
-        </div>
-      ) : questionList.length > 0 ? (
+      {isLoading ? (
+        <LoadingGrid />
+      ) : list.length > 0 ? (
         <>
-          <h2 className="font-medium text-xl">Previous Mock Interview</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 my-3">
-            {questionList.map((question, index) => (
-              <QuestionItemCard key={index} question={question} />
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-base font-semibold text-white">Previous Question Sets</h2>
+            <span className="text-xs text-[#6b6b8a]">
+              {list.length} set{list.length !== 1 ? "s" : ""}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {list.map((question, index) => (
+              <QuestionItemCard key={question.mockId ?? index} question={question} />
             ))}
           </div>
         </>
       ) : (
-        <div className="text-center my-10 text-gray-500">
-          <p>No questions found. Start by adding some mock interview questions!</p>
-        </div>
+        <EmptyState
+          icon={
+            <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          }
+          message="No question sets yet — add your first one above"
+        />
       )}
     </div>
   );

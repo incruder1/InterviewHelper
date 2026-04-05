@@ -16,6 +16,7 @@ type InterviewService interface {
 	CreateInterview(ctx context.Context, email string, req dto.CreateInterviewRequest) (*models.MockInterview, error)
 	ListInterviews(ctx context.Context, email string) ([]models.MockInterview, error)
 	GetInterview(ctx context.Context, email, mockID string) (*models.MockInterview, error)
+	Delete(ctx context.Context, email, mockID string) error
 }
 
 type interviewService struct {
@@ -73,4 +74,11 @@ func (s *interviewService) GetInterview(ctx context.Context, email, mockID strin
 		return nil, repository.ErrNotFound // do not leak existence to other users
 	}
 	return interview, nil
+}
+
+func (s *interviewService) Delete(ctx context.Context, email, mockID string) error {
+	if err := s.repo.Delete(ctx, email, mockID); err != nil {
+		return fmt.Errorf("interviewService.Delete: %w", err)
+	}
+	return nil
 }

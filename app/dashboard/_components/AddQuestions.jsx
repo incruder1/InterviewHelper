@@ -1,161 +1,101 @@
 "use client";
-import React, { useState } from "react";
-
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { LoaderCircle } from "lucide-react";
-import { useAuth } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
-import { createQuestion } from "@/utils/api";
+import { useCreateQuestion } from "@/hooks/useQuestions";
+
+const FIELDS = [
+  { key: "jobPosition", label: "Job role / position", placeholder: "e.g. Frontend Engineer" },
+  { key: "jobDesc", label: "Tech stack / description", placeholder: "e.g. React, TypeScript, CSS", multiline: true },
+  { key: "typeQuestion", label: "Type of questions", placeholder: "e.g. DSA, System Design, Behavioral" },
+  { key: "company", label: "Target company", placeholder: "e.g. Google, Microsoft, Startup" },
+  { key: "jobExperience", label: "Years of experience", placeholder: "e.g. 2", type: "number" },
+];
 
 const AddQuestions = () => {
-  const [openDailog, setOpenDialog] = useState(false);
-  const [jobPosition, setJobPosition] = useState("");
-  const [jobDesc, setJobDesc] = useState("");
-  const [typeQuestion, setTypeQuestion] = useState("");
-  const [company, setCompany] = useState("");
-  const [jobExperience, setJobExperience] = useState("");
-  const [loading, setLoading] = useState(false);
-  const { getToken } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState({ jobPosition: "", jobDesc: "", typeQuestion: "", company: "", jobExperience: "" });
+  const { create, isLoading } = useCreateQuestion();
   const router = useRouter();
 
-  const handleInputChange = (setState) => (e) => setState(e.target.value);
+  const handleChange = (key) => (e) => setForm((prev) => ({ ...prev, [key]: e.target.value }));
 
   const onSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     try {
-      const token = await getToken();
-      const question = await createQuestion(token, {
-        jobPosition,
-        jobDesc,
-        jobExperience: String(jobExperience),
-        typeQuestion,
-        company,
-      });
-      setOpenDialog(false);
+      const question = await create({ ...form, jobExperience: String(form.jobExperience) });
+      setOpen(false);
+      setForm({ jobPosition: "", jobDesc: "", typeQuestion: "", company: "", jobExperience: "" });
       router.push("/dashboard/pyq/" + question.mockId);
     } catch (error) {
       console.error("Failed to generate questions:", error.message);
-      alert("There was an error processing the data. Please try again.");
-    } finally {
-      setLoading(false);
     }
   };
 
+  const inputStyle = { background: "#1e1e30", color: "white" };
+
   return (
-    <div>
-      <div
-        className="p-10 rounded-lg border bg-secondary hover:scale-105 hover:shadow-sm transition-all cursor-pointer"
-        onClick={() => setOpenDialog(true)}
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="group relative w-full h-36 rounded-2xl border transition-all duration-300 flex flex-col items-center justify-center gap-3 cursor-pointer"
+        style={{ background: "rgba(59,130,246,0.04)", borderColor: "rgba(59,130,246,0.25)", borderStyle: "dashed" }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(59,130,246,0.08)"; e.currentTarget.style.borderColor = "rgba(59,130,246,0.5)"; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(59,130,246,0.04)"; e.currentTarget.style.borderColor = "rgba(59,130,246,0.25)"; }}
       >
-        <h2 className="text-lg text-center">+ Add New Questions</h2>
-      </div>
+        <div className="w-9 h-9 rounded-xl bg-blue-600/20 flex items-center justify-center group-hover:bg-blue-600/30 transition-colors">
+          <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+        </div>
+        <span className="text-sm font-medium text-blue-400 group-hover:text-blue-300 transition-colors">New Question Set</span>
+      </button>
 
-      <Dialog open={openDailog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>What model questions are you seeking</DialogTitle>
-            <DialogDescription>
-              <form onSubmit={onSubmit}>
-                <div className="my-3">
-                  <h2>
-                    Add Details about your job position, job descritpion and
-                    years of experience
-                  </h2>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-lg border-0 p-0 overflow-hidden" style={{ background: "#13131f" }}>
+          <div className="p-6">
+            <DialogHeader className="mb-6">
+              <DialogTitle className="text-white text-xl font-semibold">New question set</DialogTitle>
+              <DialogDescription className="text-[#6b6b8a] text-sm mt-1">Generate tailored questions for your target role and company</DialogDescription>
+            </DialogHeader>
 
-                  <div className="mt-7 my-3">
-                    <label className="text-black">Job Role/job Position</label>
-                    <Input
-                      className="mt-1"
-                      value={jobPosition}
-                      placeholder="Ex. Full stack Developer"
-                      required
-                      onChange={handleInputChange(setJobPosition)}
-                    />
-                  </div>
-                  <div className="my-4">
-                    <label className="text-black">
-                      Job Description/ Tech stack (In Short)
-                    </label>
-                    <Textarea
-                      className="placeholder-opacity-50"
-                      value={jobDesc}
-                      placeholder="Ex. React, Angular, Nodejs, Mysql, Nosql, Python"
-                      required
-                      onChange={handleInputChange(setJobDesc)}
-                    />
-                  </div>
-                  <div className="my-4">
-                    <label className="text-black">
-                      Type of Questions (In Short)
-                    </label>
-                    <Input
-                      className="placeholder-opacity-50"
-                      value={typeQuestion}
-                      placeholder="Ex. CPP, Leetcode, Domain based"
-                      required
-                      onChange={handleInputChange(setTypeQuestion)}
-                    />
-                  </div>
-                  <div className="my-4">
-                    <label className="text-black">
-                      Company are you seeking
-                    </label>
-                    <Input
-                      className="mt-1"
-                      value={company}
-                      placeholder="Ex. Microsoft, Apple, Google, Mercedes"
-                      required
-                      onChange={handleInputChange(setCompany)}
-                    />
-                  </div>
-                  <div className="my-4">
-                    <label className="text-black">Years of Experience</label>
-                    <Input
-                      className="mt-1"
-                      placeholder="Ex. 5"
-                      value={jobExperience}
-                      max="50"
-                      type="number"
-                      required
-                      onChange={handleInputChange(setJobExperience)}
-                    />
-                  </div>
+            <form onSubmit={onSubmit} className="space-y-4">
+              {FIELDS.map(({ key, label, placeholder, multiline, type }) => (
+                <div key={key}>
+                  <label className="block text-sm font-medium text-[#a0a0c0] mb-2">{label}</label>
+                  {multiline ? (
+                    <Textarea placeholder={placeholder} required value={form[key]} onChange={handleChange(key)}
+                      className="w-full rounded-xl text-white placeholder-[#4a4a6a] border-0 text-sm resize-none px-3 py-2.5" style={inputStyle} rows={2} />
+                  ) : (
+                    <Input placeholder={placeholder} required value={form[key]} onChange={handleChange(key)}
+                      type={type || "text"} max={type === "number" ? "50" : undefined}
+                      className="w-full rounded-xl text-white placeholder-[#4a4a6a] border-0 text-sm h-10 px-3" style={inputStyle} />
+                  )}
                 </div>
-                <div className="flex gap-5 justify-end">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setOpenDialog(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <LoaderCircle className="animate-spin" />
-                        Generating From AI
-                      </>
-                    ) : (
-                      "Prep. Questions"
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </DialogDescription>
-          </DialogHeader>
+              ))}
+
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setOpen(false)}
+                  className="flex-1 h-10 rounded-xl text-sm font-medium text-[#7070a0] transition-colors hover:text-white hover:bg-white/5"
+                  style={{ border: "1px solid rgba(255,255,255,0.08)" }}>Cancel</button>
+                <button type="submit" disabled={isLoading}
+                  className="flex-1 h-10 rounded-xl text-sm font-semibold text-white flex items-center justify-center gap-2 transition-all"
+                  style={{ background: isLoading ? "#1d4ed8" : "#2563eb", boxShadow: "0 0 20px -6px rgba(37,99,235,0.7)" }}>
+                  {isLoading ? (<><LoaderCircle className="animate-spin w-4 h-4" />Generating…</>) : "Generate Questions"}
+                </button>
+              </div>
+            </form>
+          </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };
 

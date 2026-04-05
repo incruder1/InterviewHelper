@@ -1,109 +1,79 @@
 "use client";
+import React, { useContext } from "react";
 import { Lightbulb, WebcamIcon } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import Webcam from "react-webcam";
 import Link from "next/link";
-import { useContext } from "react";
 import { WebCamContext } from "../../layout";
 import { toTitleCase } from "@/utils/utilities";
 import { Spinner } from "@/components/ui/Spinner";
-import { useAuth } from "@clerk/nextjs";
-import { getInterview } from "@/utils/api";
+import { useInterview } from "@/hooks/useInterviews";
+import GlowButton from "@/components/common/GlowButton";
+import GhostButton from "@/components/common/GhostButton";
 
 const Interview = ({ params }) => {
   const { webCamEnabled, setWebCamEnabled } = useContext(WebCamContext);
-  const [interviewData, setInterviewData] = useState();
-  const [loading, setLoading] = useState(true);
-  const { getToken } = useAuth();
+  const { interview, isLoading } = useInterview(params.interviewId);
 
-  useEffect(() => {
-    GetInterviewDetails();
-  }, []);
-
-  const GetInterviewDetails = async () => {
-    try {
-      setLoading(true);
-      const token = await getToken();
-      const result = await getInterview(token, params.interviewId);
-      setInterviewData(result);
-    } catch (error) {
-      console.error("Error fetching interview details:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
-    <div className="my-10">
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <Spinner />
-        </div>
-      ) : (
-        <>
-          <h2 className="font-bold text-2xl text-center">Let's Get Started</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div className="flex flex-col my-5 gap-5 justify-center">
-              <div className="flex flex-col p-5 rounded-lg border gap-5">
-                <h2 className="text-lg">
-                  <strong>Job Role/Job Position: </strong>
-                  {toTitleCase(interviewData?.jobPosition)}
-                </h2>
-                <h2 className="text-lg">
-                  <strong>Job Description/Job Stack: </strong>
-                  {toTitleCase(interviewData?.jobDesc)}
-                </h2>
-                <h2 className="text-lg">
-                  <strong>Years of Experience: </strong>
-                  {toTitleCase(interviewData?.jobExperience)}
-                </h2>
-              </div>
-              <div className="p-5 border rounded-lg border-yellow-300 bg-yellow-100">
-                <h2 className="flex gap-2 items-center text-yellow-700 mb-2">
-                  <Lightbulb />
-                  <strong>Information</strong>
-                </h2>
-                <h2 className="mt-3 text-yellow-500">
-                  {process.env.NEXT_PUBLIC_INFORMATION}
-                </h2>
-              </div>
-            </div>
-            <div>
-              {webCamEnabled ? (
-                <div className="flex items-center justify-center p-5">
-                  <Webcam
-                    onUserMedia={() => setWebCamEnabled(true)}
-                    onUserMediaError={() => setWebCamEnabled(false)}
-                    height={600}
-                    width={600}
-                    mirrored={true}
-                  />
-                </div>
-              ) : (
-                <div>
-                  <WebcamIcon className="h-72 w-full my-6 p-20 bg-secondary rounded-lg border" />
-                </div>
-              )}
-              <div className="flex w-full flex-wrap items-center justify-center gap-4">
-                <Button
-                  className="m-1 px-5 bg-slate-400 hover:bg-slate-600 dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900"
-                  onClick={() => setWebCamEnabled((prev) => !prev)}
-                >
-                  {webCamEnabled ? "Close WebCam" : "Enable WebCam"}
-                </Button>
-                <Link href={"/dashboard/interview/" + params.interviewId + "/start"}>
-                  <Button className="m-1 px-5 bg-slate-400 hover:bg-slate-600 dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900">
-                    Start Interview
-                  </Button>
-                </Link>
-              </div>
-            </div>
+    <div className="max-w-6xl mx-auto px-6 py-10">
+      <h2 className="text-2xl font-bold text-white text-center mb-8">Let&apos;s Get Started</h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        {/* Left — details */}
+        <div className="flex flex-col gap-5">
+          <div className="rounded-2xl p-6" style={{ background: "#13131f", border: "1px solid rgba(255,255,255,0.07)" }}>
+            <InfoRow label="Job Position" value={toTitleCase(interview?.jobPosition)} />
+            <InfoRow label="Tech Stack" value={toTitleCase(interview?.jobDesc)} />
+            <InfoRow label="Experience" value={`${interview?.jobExperience} years`} />
           </div>
-        </>
-      )}
+          <div className="rounded-2xl p-5" style={{ background: "rgba(234,179,8,0.08)", border: "1px solid rgba(234,179,8,0.2)" }}>
+            <h2 className="flex gap-2 items-center text-amber-400 mb-2 text-sm font-semibold">
+              <Lightbulb className="w-4 h-4" />Information
+            </h2>
+            <p className="text-amber-400/70 text-sm leading-relaxed">{process.env.NEXT_PUBLIC_INFORMATION}</p>
+          </div>
+        </div>
+
+        {/* Right — webcam */}
+        <div className="flex flex-col items-center">
+          <div className="w-full rounded-2xl overflow-hidden mb-4" style={{ background: "#13131f", border: "1px solid rgba(255,255,255,0.07)" }}>
+            {webCamEnabled ? (
+              <Webcam onUserMedia={() => setWebCamEnabled(true)} onUserMediaError={() => setWebCamEnabled(false)} height={400} width="100%" mirrored />
+            ) : (
+              <div className="flex items-center justify-center h-64">
+                <WebcamIcon className="w-20 h-20 text-[#3a3a5a]" />
+              </div>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <GhostButton className="px-5 h-10" onClick={() => setWebCamEnabled((prev) => !prev)}>
+              {webCamEnabled ? "Close WebCam" : "Enable WebCam"}
+            </GhostButton>
+            <Link href={`/dashboard/interview/${params.interviewId}/start`}>
+              <GlowButton className="px-5 h-10">Start Interview</GlowButton>
+            </Link>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
+
+function InfoRow({ label, value }) {
+  return (
+    <div className="py-3 border-b last:border-b-0" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
+      <span className="text-[#6b6b8a] text-xs uppercase tracking-wider">{label}</span>
+      <p className="text-white text-sm mt-1">{value}</p>
+    </div>
+  );
+}
 
 export default Interview;

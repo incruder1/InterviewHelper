@@ -1,14 +1,13 @@
 "use client";
-
-import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import React, { useContext, useState, useRef } from "react";
 import Webcam from "react-webcam";
 import { Mic } from "lucide-react";
 import { toast } from "sonner";
-import { useAuth } from "@clerk/nextjs";
 import { WebCamContext } from "@/app/dashboard/layout";
-import { upsertAnswer } from "@/utils/api";
+import { useSubmitAnswer } from "@/hooks/useInterviews";
+import GlowButton from "@/components/common/GlowButton";
+import GhostButton from "@/components/common/GhostButton";
 
 const RecordAnswerSection = ({
   mockInterviewQuestion,
@@ -17,10 +16,9 @@ const RecordAnswerSection = ({
   setAnswerRecorded,
   setRecording,
 }) => {
-  const [loading, setLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const { webCamEnabled, setWebCamEnabled } = useContext(WebCamContext);
-  const { getToken } = useAuth();
+  const { submit, isLoading } = useSubmitAnswer();
   const mediaRecorderRef = useRef(null);
   const chunksRef = useRef([]);
 
@@ -34,17 +32,15 @@ const RecordAnswerSection = ({
       mediaRecorderRef.current.ondataavailable = (event) => {
         if (event.data.size > 0) chunksRef.current.push(event.data);
       };
-
       mediaRecorderRef.current.onstop = async () => {
         const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
         await submitAnswer(audioBlob);
       };
-
       mediaRecorderRef.current.start();
       setIsRecording(true);
     } catch (error) {
       console.error("Error starting recording:", error);
-      toast.error("Error starting recording. Please check your microphone permissions.");
+      toast.error("Microphone error. Check permissions.");
     }
   };
 
@@ -56,88 +52,64 @@ const RecordAnswerSection = ({
   };
 
   const submitAnswer = async (audioBlob) => {
-    setLoading(true);
     try {
-      // Convert audio blob → base64 and send to the Go backend.
-      // The backend handles transcription + AI feedback + DB upsert in one call.
       const base64Audio = await blobToBase64(audioBlob);
-      const token = await getToken();
-
       const currentQuestion = mockInterviewQuestion[activeQuestionIndex];
-
-      await upsertAnswer(token, interviewData?.mockId, {
+      await submit(interviewData?.mockId, {
         question: currentQuestion?.Question,
         correctAns: currentQuestion?.Answer,
         audioBase64: base64Audio,
         audioMimeType: "audio/webm",
       });
-
       toast.success("Answer recorded successfully");
       setAnswerRecorded(false);
       setRecording(false);
     } catch (error) {
       console.error("Error submitting answer:", error);
-      toast.error("An error occurred while recording the answer. Please try again.");
+      toast.error("An error occurred. Please try again.");
       setAnswerRecorded(false);
       setRecording(false);
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center overflow-hidden">
-      <div className="flex flex-col justify-center items-center rounded-lg p-2 bg-slate-100">
+    <div className="flex flex-col items-center justify-center">
+      <div
+        className="w-full rounded-2xl overflow-hidden mb-4"
+        style={{ background: "#13131f", border: "1px solid rgba(255,255,255,0.07)" }}
+      >
         {webCamEnabled ? (
-          <Webcam
-            mirrored={true}
-            style={{ height: 400, width: "100%", zIndex: 10 }}
-          />
+          <Webcam mirrored style={{ height: 300, width: "100%", objectFit: "cover" }} />
         ) : (
-          <Image src={"/camera.jpg"} width={200} height={200} alt="Camera placeholder" />
+          <div className="flex items-center justify-center h-64">
+            <Image src="/camera.jpg" width={150} height={150} alt="Camera" className="opacity-40" />
+          </div>
         )}
       </div>
-      <div className="md:flex mt-4 md:mt-8 md:gap-5 w-full justify-center items-center sm:flex sm:gap-4">
-        <div className="my-4 md:my-0">
-          <Button
-            onClick={() => setWebCamEnabled((prev) => !prev)}
-            className="bg-slate-400 hover:bg-slate-600 dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900"
-          >
-            {webCamEnabled ? "Close WebCam" : "Enable WebCam"}
-          </Button>
-        </div>
-        <div className="bg-primary rounded-lg">
-          <Button
-            onClick={isRecording ? stopRecording : startRecording}
-            disabled={loading}
-            className="bg-slate-400 hover:bg-slate-600 dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900"
-          >
-            {isRecording ? (
-              <h2 className="text-red-400 flex gap-2">
-                <Mic /> Stop Recording.
-              </h2>
-            ) : loading ? (
-              "Processing…"
-            ) : (
-              "Record Answer"
-            )}
-          </Button>
-        </div>
+
+      <div className="flex gap-3">
+        <GhostButton className="px-4 h-10" onClick={() => setWebCamEnabled((prev) => !prev)}>
+          {webCamEnabled ? "Close WebCam" : "Enable WebCam"}
+        </GhostButton>
+        <GlowButton
+          className="px-4 h-10 flex items-center gap-2"
+          variant={isRecording ? "blue" : "violet"}
+          onClick={isRecording ? stopRecording : startRecording}
+          disabled={isLoading}
+        >
+          {isRecording ? (
+            <><Mic className="w-4 h-4 text-red-400" />Stop Recording</>
+          ) : isLoading ? "Processing…" : "Record Answer"}
+        </GlowButton>
       </div>
     </div>
   );
 };
 
-// ── helpers ───────────────────────────────────────────────────────────────────
-
 function blobToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onloadend = () => {
-      // Strip the data-URL prefix ("data:audio/webm;base64,")
-      const base64 = reader.result.split(",")[1];
-      resolve(base64);
-    };
+    reader.onloadend = () => resolve(reader.result.split(",")[1]);
     reader.onerror = reject;
     reader.readAsDataURL(blob);
   });

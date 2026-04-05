@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/devjohri/interviewhelper/backend/internal/dto"
@@ -67,4 +68,24 @@ func (h *InterviewHandler) Get(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, interview)
+}
+
+// DELETE /interviews/:mockId
+func (h *InterviewHandler) Delete(c *gin.Context) {
+	mockID := c.Param("mockId")
+	email := middleware.GetUserEmail(c)
+
+	fmt.Printf("[DELETE] mockId=%q email=%q\n", mockID, email)
+
+	err := h.svc.Delete(c.Request.Context(), email, mockID)
+	if err != nil {
+		if errors.Is(err, repository.ErrNotFound) {
+			c.JSON(http.StatusNotFound, dto.ErrorResponse{Error: "interview not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to delete interview"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Interview deleted successfully"})
 }

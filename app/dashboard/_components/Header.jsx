@@ -1,137 +1,63 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { UserButton } from "@clerk/nextjs";
 import { usePathname } from "next/navigation";
-import { ModeToggle } from "@/components/ModeToggle";
 import Link from "next/link";
+import { SITE_NAME, DASHBOARD_NAV_LINKS } from "@/constants/site";
+
 const Header = ({ logo }) => {
-  const [isUserButtonLoaded, setUserButtonLoaded] = useState(false);
-  const [isOpen, setIsOpen] = useState(false)
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen)
-  }
-
-  const SkeletonLoader = () => (
-    <div className="w-8 h-8 bg-gray-300 rounded-full animate-pulse"></div>
-  );
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setUserButtonLoaded(true);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
-
+  const [isOpen, setIsOpen] = useState(false);
   const path = usePathname();
- 
+
   return (
-    <div className=" bg-secondary shadow-sm ">
-      <div className="w-[80%] m-auto flex gap-4 items-center justify-between py-4">
-        <Link className="hidden md:block" href="/dashboard">
-          <Image src={logo} width={50} height={50} alt="logo" className="dark:bg-slate-50" />
+    <header
+      className="sticky top-0 z-50 border-b"
+      style={{ background: "rgba(13,14,20,0.85)", backdropFilter: "blur(20px)", borderColor: "rgba(255,255,255,0.06)" }}
+    >
+      <div className="max-w-6xl mx-auto px-6 flex items-center justify-between h-14">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <Image src={logo} width={26} height={26} alt="logo" className="rounded-md" />
+          <span className="hidden md:block text-sm font-semibold text-white tracking-tight">{SITE_NAME}</span>
         </Link>
-        <ul className="hidden md:flex gap-6">
-          <Link href="/dashboard">
-            <li
-              className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard" && 
-                "text-black font-bold "
-                  } dark:text-slate-50 dark:hover:text-slate-50`}
-            >
-              Dashboard
-            </li>
-          </Link>
-          <Link href="/dashboard/question">
-            <li
-              className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard/question" &&
-                 "text-black  font-bold"
-                } dark:text-slate-50 dark:hover:text-slate-50`}
-            >
-              Questions
-            </li>
-          </Link>
 
-          <Link href="/dashboard/upgrade">
-            <li
-              className={`hover:text-black hover:font-semibold transition-all cursor-pointer ${path == "/dashboard/upgrade"
-                 && "text-black font-bold"
-                } dark:text-slate-50 dark:hover:text-slate-50`}
+        <nav className="hidden md:flex items-center gap-0.5">
+          {DASHBOARD_NAV_LINKS.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              className={`px-4 py-1.5 rounded-lg text-sm transition-all duration-150 ${
+                path === href ? "bg-white/10 text-white font-medium" : "text-[#7070a0] hover:text-white hover:bg-white/5"
+              }`}
             >
-              Upgrade
-            </li>
-          </Link>
+              {label}
+            </Link>
+          ))}
+        </nav>
 
-          <Link href="/dashboard/howit">
-            <li
-              className={`hover:text-black hover:font-bold transition-all cursor-pointer ${path == "/dashboard/howit" &&
-                 "text-black font-bold" } dark:text-slate-50 dark:hover:text-slate-50`}
-            >
-              How it works?
-            </li>
-          </Link>
-        </ul>
-        <div className="md:hidden">
-          <button onClick={toggleMenu} className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500">
-            <span className="sr-only">Open main menu</span>
+        <div className="flex items-center gap-3">
+          <UserButton />
+          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-[#7070a0] hover:text-white transition-colors p-1">
             {isOpen ? (
-              <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             ) : (
-              <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-              </svg>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
             )}
           </button>
         </div>
-        <div className="flex gap-10 " >
-          <ModeToggle />
-          {isUserButtonLoaded ? <UserButton /> : <SkeletonLoader />}
-        </div>
       </div>
+
       {isOpen && (
-        <div className="md:hidden">
-          <div className="px-5">
-            <ul className="px-2 pt-2 pb-3 space-y-1 sm:px-3" >
-              <Link href="/dashboard">
-                <li
-                  className={`hover:text-slate-600 text-slate-800 hover:font-bold transition-all cursor-pointer ${path == "/dashboard" && "text-black font-bold "
-                    } dark:text-slate-50 dark:hover:text-slate-100`}
-                >
-                  Dashboard
-                </li>
-              </Link>
-              <Link href="/dashboard/question">
-                <li
-                  className={`hover:text-slate-600 text-slate-800 hover:font-bold transition-all cursor-pointer ${path == "/dashboard/question" && "text-black font-bold"
-                    } dark:text-slate-50 dark:hover:text-slate-100`}
-                >
-                  Questions
-                </li>
-              </Link>
-              <Link href="/dashboard/upgrade">
-                <li
-                  className={`hover:text-slate-600 text-slate-800 hover:font-bold transition-all cursor-pointer ${path == "/dashboard/upgrade" && " text-black font-bold"
-                    } dark:text-slate-50 dark:hover:text-slate-100`}
-                >
-                  Upgrade
-                </li>
-              </Link>
-              <Link href="/dashboard/howit">
-                <li
-                  className={`hover:text-slate-600 text-slate-800 hover:font-bold transition-all cursor-pointer ${path == "/dashboard/howit" && "text-black font-bold"
-                    } dark:text-slate-50 dark:hover:text-slate-100`}
-                >
-                  How it works?
-                </li>
-              </Link>
-            </ul>
-          </div>
+        <div className="md:hidden border-t px-4 py-3 space-y-0.5" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+          {DASHBOARD_NAV_LINKS.map(({ href, label }) => (
+            <Link key={href} href={href} onClick={() => setIsOpen(false)}
+              className={`block px-4 py-2.5 rounded-xl text-sm transition-colors ${path === href ? "bg-white/10 text-white font-medium" : "text-[#7070a0] hover:text-white hover:bg-white/5"}`}>
+              {label}
+            </Link>
+          ))}
         </div>
       )}
-    </div>
+    </header>
   );
 };
 
