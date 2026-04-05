@@ -1,91 +1,61 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import QuestionSection from "./_components/QuestionSection";
 import RecordAnswerSection from "./_components/RecordAnswerSection";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Spinner } from "@/components/ui/Spinner";
-import { useAuth } from "@clerk/nextjs";
-import { getInterview } from "@/utils/api";
+import { useInterview } from "@/hooks/useInterviews";
+import GlowButton from "@/components/common/GlowButton";
+import GhostButton from "@/components/common/GhostButton";
 
 const StartInterview = ({ params }) => {
-  const [interviewData, setInterviewData] = useState();
-  const [mockInterviewQuestion, setMockInterviewQuestion] = useState();
+  const { interview, isLoading } = useInterview(params.interviewId);
   const [activeQuestionIndex, setActiveQuestionIndex] = useState(0);
   const [answerRecorded, setAnswerRecorded] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const { getToken } = useAuth();
 
-  useEffect(() => {
-    GetInterviewDetails();
-  }, []);
-
-  const GetInterviewDetails = async () => {
+  const questions = useMemo(() => {
+    if (!interview?.jsonMockResp) return null;
     try {
-      setLoading(true);
-      const token = await getToken();
-      const result = await getInterview(token, params.interviewId);
-      setMockInterviewQuestion(JSON.parse(result.jsonMockResp));
-      setInterviewData(result);
-    } catch (error) {
-      console.error("Error fetching interview details:", error);
-    } finally {
-      setLoading(false);
+      return JSON.parse(interview.jsonMockResp);
+    } catch {
+      return null;
     }
-  };
+  }, [interview]);
 
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-2 my-10">
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <Spinner />
-          </div>
+    <div className="max-w-6xl mx-auto px-6 py-10">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64"><Spinner /></div>
         ) : (
-          <QuestionSection
-            mockInterviewQuestion={mockInterviewQuestion}
-            activeQuestionIndex={activeQuestionIndex}
-          />
+          <QuestionSection mockInterviewQuestion={questions} activeQuestionIndex={activeQuestionIndex} />
         )}
         <RecordAnswerSection
-          mockInterviewQuestion={mockInterviewQuestion}
+          mockInterviewQuestion={questions}
           activeQuestionIndex={activeQuestionIndex}
-          interviewData={interviewData}
+          interviewData={interview}
           setAnswerRecorded={setAnswerRecorded}
           setRecording={setRecording}
         />
       </div>
-      <div className="flex gap-3 my-5 md:my-0 md:justify-end md:gap-6">
+
+      <div className="flex gap-3 mt-8 justify-end">
         {activeQuestionIndex > 0 && (
-          <Button
-            onClick={() => setActiveQuestionIndex(activeQuestionIndex - 1)}
-            disabled={recording}
-            className="bg-slate-400 hover:bg-slate-600 dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900"
-          >
-            Previous Question
-          </Button>
+          <GhostButton className="px-5 h-10" onClick={() => setActiveQuestionIndex(activeQuestionIndex - 1)} disabled={recording}>
+            Previous
+          </GhostButton>
         )}
-        {activeQuestionIndex !== mockInterviewQuestion?.length - 1 && (
-          <Button
-            onClick={() => {
-              setActiveQuestionIndex(activeQuestionIndex + 1);
-              setAnswerRecorded(false);
-            }}
-            disabled={answerRecorded || recording}
-            className="bg-slate-400 hover:bg-slate-600 dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900"
-          >
-            Next Question
-          </Button>
+        {questions && activeQuestionIndex < questions.length - 1 && (
+          <GlowButton className="px-5 h-10"
+            onClick={() => { setActiveQuestionIndex(activeQuestionIndex + 1); setAnswerRecorded(false); }}
+            disabled={answerRecorded || recording}>
+            Next
+          </GlowButton>
         )}
-        {activeQuestionIndex === mockInterviewQuestion?.length - 1 && (
-          <Link href={"/dashboard/interview/" + interviewData?.mockId + "/feedback"}>
-            <Button
-              disabled={recording}
-              className="bg-slate-400 hover:bg-slate-600 dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900"
-            >
-              End Interview
-            </Button>
+        {questions && activeQuestionIndex === questions.length - 1 && (
+          <Link href={`/dashboard/interview/${interview?.mockId}/feedback`}>
+            <GlowButton className="px-5 h-10" disabled={recording}>End Interview</GlowButton>
           </Link>
         )}
       </div>

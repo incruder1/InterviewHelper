@@ -1,29 +1,54 @@
-import React from 'react'
-import { Button } from "@/components/ui/button";
-import { useRouter } from 'next/navigation';
+"use client";
+import { useRouter } from "next/navigation";
+import Badge from "@/components/common/Badge";
+import GlowButton from "@/components/common/GlowButton";
+import GhostButton from "@/components/common/GhostButton";
+import DarkCard from "@/components/common/DarkCard";
+import { useDispatch } from "react-redux";
+import { deleteInterview } from "@/store/slices/interviewSlice";
+import { toast } from "sonner";
+import { useAuth } from "@clerk/nextjs";
 
-const InterviewItemCard = ({interview}) => {
-
-    const router = useRouter()
-    const onStart = ()=>{
-        router.push("/dashboard/interview/"+interview?.mockId)
-    }
-    const onFeedback = ()=>{
-        router.push("/dashboard/interview/"+interview?.mockId+"/feedback")
-    }
+const InterviewItemCard = ({ interview }) => {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const { getToken } = useAuth();
+  const handleDelete = async (mockId) => {
+    const token = await getToken();
+    await dispatch(deleteInterview({ token, mockId })).unwrap().then(() => {
+      toast.success("Interview deleted successfully");
+    }).catch((error) => {
+      toast.error(error.message);
+      throw error;
+    })
+  };
   return (
-    <div className="border border-gray-500 shadow-sm rounded-lg text-xl p-5 " >
-        <h2 className='font-bold text-primary my-2 ' >{interview?.jobPosition.toUpperCase()}</h2>
-        <h2 className=' text-gray-600 text-lg dark:text-white' >{interview?.jobExperience} Years of experience</h2>
-        <h2 className="text-sm text-gray-400 dark:text-white my-2 font-bold" >Created At:  {interview.createdAt}</h2>
+    <DarkCard>
+      <div className="flex items-center justify-between">
+      <Badge variant="violet" className="mb-4">
+        {interview?.jobPosition?.toUpperCase()}
+      </Badge>
+      <Badge variant="violet" className="mb-4 cursor-pointer" onClick={() => handleDelete(interview.mockId)}>X</Badge>
+      </div>
+      <p className="text-white/80 text-sm mb-1">{interview?.jobExperience} yrs experience</p>
+      <p className="text-[#4a4a6a] text-xs mb-5">Created {interview?.createdAt}</p>
 
-        <div className='flex justify-between mt-2 gap-5 ' >
-            <Button onClick={onFeedback} size="sm"  className="w-full my-2 bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900" >Feedback</Button>
-            <Button onClick={onStart} size="sm"  className="w-full my-2 bg-slate-400 hover:bg-slate-600  dark:bg-blue-600 dark:text-white rounded dark:hover:bg-blue-900">Start</Button>
-        </div>
-    </div>
+      <div className="flex gap-2">
+        <GhostButton
+          className="flex-1"
+          onClick={() => router.push(`/dashboard/interview/${interview?.mockId}/feedback`)}
+        >
+          Feedback
+        </GhostButton>
+        <GlowButton
+          className="flex-1"
+          onClick={() => router.push(`/dashboard/interview/${interview?.mockId}`)}
+        >
+          Start →
+        </GlowButton>
+      </div>
+    </DarkCard>
+  );
+};
 
-  )
-}
-
-export default InterviewItemCard
+export default InterviewItemCard;

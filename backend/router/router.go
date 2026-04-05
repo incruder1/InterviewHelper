@@ -44,6 +44,7 @@ func New(h Handlers, corsOrigins []string, ginMode string) *gin.Engine {
 			interviews.GET("/:mockId", h.Interview.Get)
 			interviews.POST("/:mockId/answers", h.Answer.Upsert)
 			interviews.GET("/:mockId/answers", h.Answer.List)
+			interviews.DELETE("/:mockId", h.Interview.Delete)
 		}
 
 		questions := api.Group("/questions")

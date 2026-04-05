@@ -16,15 +16,16 @@ type InterviewService interface {
 	CreateInterview(ctx context.Context, email string, req dto.CreateInterviewRequest) (*models.MockInterview, error)
 	ListInterviews(ctx context.Context, email string) ([]models.MockInterview, error)
 	GetInterview(ctx context.Context, email, mockID string) (*models.MockInterview, error)
+	Delete(ctx context.Context, email, mockID string) error
 }
 
 type interviewService struct {
-	repo   repository.InterviewRepository
-	gemini *GeminiService
+	repo repository.InterviewRepository
+	groq *GroqService
 }
 
-func NewInterviewService(repo repository.InterviewRepository, gemini *GeminiService) InterviewService {
-	return &interviewService{repo: repo, gemini: gemini}
+func NewInterviewService(repo repository.InterviewRepository, groq *GroqService) InterviewService {
+	return &interviewService{repo: repo, groq: groq}
 }
 
 func (s *interviewService) CreateInterview(
@@ -32,7 +33,7 @@ func (s *interviewService) CreateInterview(
 	email string,
 	req dto.CreateInterviewRequest,
 ) (*models.MockInterview, error) {
-	rawJSON, _, err := s.gemini.GenerateInterviewQuestions(ctx, req.JobPosition, req.JobDesc, req.JobExperience)
+	rawJSON, _, err := s.groq.GenerateInterviewQuestions(ctx, req.JobPosition, req.JobDesc, req.JobExperience)
 	if err != nil {
 		return nil, fmt.Errorf("interviewService.CreateInterview: AI generation failed: %w", err)
 	}
@@ -73,4 +74,11 @@ func (s *interviewService) GetInterview(ctx context.Context, email, mockID strin
 		return nil, repository.ErrNotFound // do not leak existence to other users
 	}
 	return interview, nil
+}
+
+func (s *interviewService) Delete(ctx context.Context, email, mockID string) error {
+	if err := s.repo.Delete(ctx, email, mockID); err != nil {
+		return fmt.Errorf("interviewService.Delete: %w", err)
+	}
+	return nil
 }

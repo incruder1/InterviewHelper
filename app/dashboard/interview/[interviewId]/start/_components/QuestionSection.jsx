@@ -1,59 +1,61 @@
- 
-import { Lightbulb, Volume2 } from "lucide-react";
-import React from "react";
-import { Spinner } from "@/components/ui/Spinner";
-
+"use client";
+import { Volume2 } from "lucide-react";
 
 const QuestionSection = ({ mockInterviewQuestion, activeQuestionIndex }) => {
- 
   const textToSpeech = (text) => {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
       const speech = new SpeechSynthesisUtterance(text);
-      speech.rate = 1; 
+      speech.rate = 1;
       window.speechSynthesis.speak(speech);
     } else {
       alert("Sorry, your browser does not support text to speech.");
     }
   };
+
+  if (!mockInterviewQuestion) return null;
+
   return (
-    mockInterviewQuestion && (
-      <div className=" flex flex-col justify-between p-5 border rounded-lg my-1">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 ">
-          {mockInterviewQuestion &&
-            mockInterviewQuestion.map((question, index) => (
-              <h2
-                className={`p-2  rounded-full text-center text-xs md:text-sm cursor-pointer md:block hidden ${
-                  activeQuestionIndex == index
-                    ? "bg-slate-600 text-white"
-                    : "dark:bg-slate-800 dark:font-white bg-slate-100  "
-                }`}
-                key={index}
-              >
-                Question #{index + 1}
-              </h2>
-            ))}
-        </div>
-        <h2 className="my-5 text-md md:text-lg">
-          {mockInterviewQuestion[activeQuestionIndex]?.Question}
-        </h2>
-        <Volume2
-          className="cursor-pointer"
-          onClick={() =>
-            textToSpeech(mockInterviewQuestion[activeQuestionIndex]?.Question)
-          }
-        />
-        <div className="border rounded-lg p-5 bg-blue-100 mt-18 md:block hidden">
-          <h2 className="flex gap-2 items-center text-blue-800">
-            <Lightbulb />
-            <strong>Note:</strong>
-          </h2>
-          <h2 className="text-sm text-blue-600 my-2">
-            {process.env.NEXT_PUBLIC_QUESTION_NOTE}
-          </h2>
-        </div>
+    <div className="rounded-2xl p-6" style={{ background: "#13131f", border: "1px solid rgba(255,255,255,0.07)" }}>
+      {/* Question tabs */}
+      <div className="hidden md:flex flex-wrap gap-2 mb-6">
+        {mockInterviewQuestion.map((_, index) => (
+          <div
+            key={index}
+            className={`px-4 py-1.5 rounded-xl text-xs font-medium cursor-pointer transition-all duration-200 ${
+              activeQuestionIndex === index
+                ? "text-white"
+                : "text-zinc-500 hover:text-white"
+            }`}
+            style={{
+              background: activeQuestionIndex === index ? "#7c3aed" : "rgba(255,255,255,0.05)",
+              boxShadow: activeQuestionIndex === index ? "0 0 15px -4px rgba(124,58,237,0.7)" : "none",
+            }}
+          >
+            Q{index + 1}
+          </div>
+        ))}
       </div>
-    )
+
+      <p className="text-white text-base md:text-lg leading-relaxed mb-5">
+        {mockInterviewQuestion[activeQuestionIndex]?.Question}
+      </p>
+
+      <button
+        onClick={() => textToSpeech(mockInterviewQuestion[activeQuestionIndex]?.Question)}
+        className="flex items-center gap-2 text-[#6b6b8a] hover:text-violet-400 transition-colors text-sm"
+      >
+        <Volume2 className="w-4 h-4" />
+        Read aloud
+      </button>
+
+      {process.env.NEXT_PUBLIC_QUESTION_NOTE && (
+        <div className="mt-6 rounded-xl p-4 hidden md:block" style={{ background: "rgba(124,58,237,0.08)", border: "1px solid rgba(124,58,237,0.15)" }}>
+          <p className="text-violet-300 text-xs font-semibold uppercase tracking-wider mb-1">Note</p>
+          <p className="text-violet-400/80 text-sm leading-relaxed">{process.env.NEXT_PUBLIC_QUESTION_NOTE}</p>
+        </div>
+      )}
+    </div>
   );
 };
 

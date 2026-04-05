@@ -1,21 +1,25 @@
-import { UserButton } from "@clerk/nextjs";
 import React from "react";
 import AddNewInterview from "./_components/AddNewInterview";
 import InterviewList from "./_components/InterviewList";
 
-
 const Dashboard = () => {
   return (
-    <div className="p-10" >
-      <h2 className="font-bold text-2xl" >Dashboard</h2>
-      <h2 className="text-gray-500" >Create and start your AI Mockup Interview</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 my-5" >
-        <AddNewInterview/>
+    <div className="max-w-6xl mx-auto px-6 py-10">
+      {/* Page header */}
+      <div className="mb-10">
+        <h1 className="text-2xl font-bold text-white tracking-tight">Dashboard</h1>
+        <p className="text-[#6b6b8a] mt-1 text-sm">Create and start your AI mock interview</p>
       </div>
-      <InterviewList/>
+
+      {/* New interview trigger */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
+        <AddNewInterview />
+      </div>
+
+      {/* Interview list */}
+      <InterviewList />
     </div>
   );
 };
-
 
 export default Dashboard;

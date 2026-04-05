@@ -1,87 +1,48 @@
-import React from 'react';
+import { SITE_NAME, FOOTER_LINKS } from "@/constants/site";
 
 const Footer = () => {
   return (
-    <footer id="footer" className="bg-neutral-950 pt-20 pb-10">
-      <div className="container mx-auto px-4">
-        {/* Footer Grid */}
+    <footer className="bg-[#050505] border-t border-zinc-800/50 pt-20 pb-10">
+      <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
-          {/* Company Info */}
           <div className="lg:col-span-2">
-            <div className="mb-6">
-              <span className="text-2xl font-bold text-white">Interview Helper</span>
-            </div>
-            <p className="text-neutral-400 mb-6">
-              Elevate your interview performance with AI-powered practice and personalized feedback.
+            <span className="text-xl font-bold text-white tracking-tight">{SITE_NAME}</span>
+            <p className="text-zinc-500 text-sm mt-4 mb-6 max-w-xs leading-relaxed">
+              Elevate your interview performance with AI-powered practice and personalised feedback.
             </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">
-                <i className="fab fa-twitter text-xl"></i>
-              </a>
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">
-                <i className="fab fa-linkedin text-xl"></i>
-              </a>
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">
-                <i className="fab fa-github text-xl"></i>
-              </a>
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">
-                <i className="fab fa-youtube text-xl"></i>
-              </a>
-            </div>
           </div>
 
-          {/* Product */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-6">Product</h3>
-            <ul className="space-y-4">
-              <li><a href="#features" className="text-neutral-400 hover:text-white transition-colors">Features</a></li>
-              {/* <li><a href="#pricing" className="text-neutral-400 hover:text-white transition-colors">Pricing</a></li> */}
-              <li><a href="#testimonials" className="text-neutral-400 hover:text-white transition-colors">Testimonials</a></li>
-              <li><a href="#faq" className="text-neutral-400 hover:text-white transition-colors">FAQ</a></li>
-            </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-6">Resources</h3>
-            <ul className="space-y-4">
-              <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">Blog</a></li>
-              <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">Documentation</a></li>
-              <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">Help Center</a></li>
-              <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">Career Tips</a></li>
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-6">Company</h3>
-            <ul className="space-y-4">
-              <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">About Us</a></li>
-              <li><a href="https://devjohriresume.vercel.app/" className="text-neutral-400 hover:text-white transition-colors">Careers</a></li>
-              <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">Contact</a></li>
-              <li><a href="#" className="text-neutral-400 hover:text-white transition-colors">Partners</a></li>
-            </ul>
-          </div>
+          <FooterColumn title="Product" links={FOOTER_LINKS.product} />
+          <FooterColumn title="Resources" links={FOOTER_LINKS.resources} />
+          <FooterColumn title="Company" links={FOOTER_LINKS.company} />
         </div>
 
-        {/* Bottom Footer */}
-        <div className="pt-8 border-t border-neutral-800">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Copyright */}
-            <div className="text-neutral-400 text-sm">
-              © 2024 Interview Helper. All rights reserved.
-            </div>
-            {/* Legal Links */}
-            <div className="flex flex-wrap gap-6 md:justify-end text-sm">
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">Privacy Policy</a>
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">Terms of Service</a>
-              <a href="#" className="text-neutral-400 hover:text-white transition-colors">Cookie Policy</a>
-            </div>
+        <div className="pt-8 border-t border-zinc-800/50 flex flex-col md:flex-row items-center justify-between gap-4">
+          <span className="text-zinc-700 text-sm">© {new Date().getFullYear()} {SITE_NAME}. All rights reserved.</span>
+          <div className="flex gap-6">
+            {FOOTER_LINKS.legal.map(({ href, label }) => (
+              <a key={label} href={href} className="text-zinc-700 hover:text-white text-sm transition-colors duration-200">{label}</a>
+            ))}
           </div>
         </div>
       </div>
     </footer>
   );
 };
+
+function FooterColumn({ title, links }) {
+  return (
+    <div>
+      <h3 className="text-xs font-semibold text-white uppercase tracking-wider mb-5">{title}</h3>
+      <ul className="space-y-3">
+        {links.map(({ href, label }) => (
+          <li key={label}>
+            <a href={href} className="text-zinc-500 hover:text-white text-sm transition-colors duration-200">{label}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export default Footer;

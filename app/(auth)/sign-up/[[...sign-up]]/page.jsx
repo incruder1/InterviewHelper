@@ -1,9 +1,9 @@
 import { SignUp } from "@clerk/nextjs";
 
 export default function Page() {
-  return(
-  <div className="flex justify-center items-center m-10 ">
-     <SignUp />
-     </div>
+  return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "linear-gradient(135deg, #0d0e14, #0f0d1a)" }}>
+      <SignUp />
+    </div>
   );
 }

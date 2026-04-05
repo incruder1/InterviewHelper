@@ -1,47 +1,40 @@
 "use client";
-import { useAuth } from "@clerk/nextjs";
-import React, { useEffect, useState } from "react";
+import { useInterviewList } from "@/hooks/useInterviews";
 import InterviewItemCard from "./InterviewItemCard";
-import { Spinner } from "@/components/ui/Spinner";
-import { listInterviews } from "@/utils/api";
+import LoadingGrid from "@/components/common/LoadingGrid";
+import EmptyState from "@/components/common/EmptyState";
 
 const InterviewList = () => {
-  const { getToken } = useAuth();
-  const [interviewList, setInterviewList] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    GetInterviewList();
-  }, []);
-
-  const GetInterviewList = async () => {
-    try {
-      setLoading(true);
-      const token = await getToken();
-      const result = await listInterviews(token);
-      setInterviewList(result);
-    } catch (error) {
-      console.error("Error fetching interview list:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { list, isLoading } = useInterviewList();
 
   return (
     <div>
-      <h2 className="font-medium text-xl">Previous Mock Interview</h2>
-      {loading ? (
-        <div className="flex justify-center items-center">
-          <Spinner />
-        </div>
-      ) : interviewList.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 my-3">
-          {interviewList.map((interview, index) => (
-            <InterviewItemCard key={index} interview={interview} />
+      <div className="flex items-center justify-between mb-5">
+        <h2 className="text-base font-semibold text-white">Previous Mock Interviews</h2>
+        {!isLoading && list.length > 0 && (
+          <span className="text-xs text-[#6b6b8a]">
+            {list.length} session{list.length !== 1 ? "s" : ""}
+          </span>
+        )}
+      </div>
+
+      {isLoading ? (
+        <LoadingGrid />
+      ) : list.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {list.map((interview, index) => (
+            <InterviewItemCard key={interview.mockId ?? index} interview={interview} />
           ))}
         </div>
       ) : (
-        <p className="text-red-600 text-lg">No Previous interviews found.</p>
+        <EmptyState
+          icon={
+            <svg className="w-6 h-6 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          }
+          message="No interviews yet — start your first one above"
+        />
       )}
     </div>
   );
