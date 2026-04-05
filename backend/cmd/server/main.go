@@ -65,13 +65,18 @@ func main() {
 
 	r := router.New(handlers, cfg.CORSOrigins, ginMode)
 
-	srv := &http.Server{
-		Addr:         ":" + cfg.Port,
-		Handler:      r,
-		ReadTimeout:  30 * time.Second,
-		WriteTimeout: 60 * time.Second, // generous for LLM calls
-		IdleTimeout:  90 * time.Second,
-	}
+	port := os.Getenv("PORT")
+if port == "" {
+	port = cfg.Port
+}
+
+srv := &http.Server{
+	Addr:         ":" + port,
+	Handler:      r,
+	ReadTimeout:  30 * time.Second,
+	WriteTimeout: 60 * time.Second,
+	IdleTimeout:  90 * time.Second,
+}
 
 	// Start server in a goroutine.
 	go func() {
